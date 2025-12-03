@@ -1,3 +1,8 @@
+import { BaseEntity } from './BaseEntity';
+import { Email } from '../value-objects/Email';
+import { Password } from '../value-objects/Password';
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 interface UserProps {
   email: Email;
   password: Password;
@@ -106,31 +111,24 @@ export class User extends BaseEntity<UserProps> {
   get email(): string {
     return this.props.email.getValue();
   }
-
   get passwordHash(): string {
     return this.props.password.getHash();
   }
-
   get name(): string {
     return this.props.name;
   }
-
   get avatar(): string | undefined {
     return this.props.avatar;
   }
-
   get workspaceId(): string | undefined {
     return this.props.workspaceId;
   }
-
   get emailVerified(): boolean {
     return this.props.emailVerified;
   }
-
   get isActive(): boolean {
     return this.props.isActive;
   }
-
   get lastLoginAt(): Date | undefined {
     return this.props.lastLoginAt;
   }

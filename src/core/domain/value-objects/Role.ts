@@ -1,3 +1,5 @@
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 export enum UserRole {
   OWNER = 'owner',
   ADMIN = 'admin',

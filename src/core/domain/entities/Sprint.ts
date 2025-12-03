@@ -1,3 +1,6 @@
+import { BaseEntity } from './BaseEntity';
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 export enum SprintStatus {
   PLANNING = 'planning',
   ACTIVE = 'active',
@@ -40,10 +43,6 @@ export class Sprint extends BaseEntity<SprintProps> {
   ): Sprint {
     if (!name || name.trim().length < 3) {
       throw new ValidationError('Sprint name must be at least 3 characters long');
-    }
-
-    if (startDate < new Date()) {
-      throw new ValidationError('Sprint start date cannot be in the past');
     }
 
     const durationDays = this.getDurationDays(duration);
@@ -129,10 +128,6 @@ export class Sprint extends BaseEntity<SprintProps> {
       throw new ValidationError('Only planning sprints can be started');
     }
 
-    if (this.props.startDate > new Date()) {
-      throw new ValidationError('Cannot start sprint before its start date');
-    }
-
     this.props.status = SprintStatus.ACTIVE;
     this.touch();
   }
@@ -167,35 +162,27 @@ export class Sprint extends BaseEntity<SprintProps> {
   get workspaceId(): string {
     return this.props.workspaceId;
   }
-
   get productId(): string {
     return this.props.productId;
   }
-
   get name(): string {
     return this.props.name;
   }
-
   get goal(): string | undefined {
     return this.props.goal;
   }
-
   get status(): SprintStatus {
     return this.props.status;
   }
-
   get duration(): SprintDuration {
     return this.props.duration;
   }
-
   get startDate(): Date {
     return this.props.startDate;
   }
-
   get endDate(): Date {
     return this.props.endDate;
   }
-
   get velocity(): number {
     return this.props.velocity;
   }

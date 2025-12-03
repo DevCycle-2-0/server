@@ -1,3 +1,6 @@
+import { BaseEntity } from './BaseEntity';
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 export enum FeatureStatus {
   IDEA = 'idea',
   REVIEW = 'review',
@@ -208,53 +211,44 @@ export class Feature extends BaseEntity<FeatureProps> {
   get workspaceId(): string {
     return this.props.workspaceId;
   }
-
   get productId(): string {
     return this.props.productId;
   }
-
   get title(): string {
     return this.props.title;
   }
-
   get description(): string | undefined {
     return this.props.description;
   }
-
   get status(): FeatureStatus {
     return this.props.status;
   }
-
   get priority(): Priority {
     return this.props.priority;
   }
-
   get assigneeId(): string | undefined {
     return this.props.assigneeId;
   }
-
   get sprintId(): string | undefined {
     return this.props.sprintId;
   }
-
   get estimatedHours(): number | undefined {
     return this.props.estimatedHours;
   }
-
   get actualHours(): number | undefined {
     return this.props.actualHours;
   }
-
   get votes(): number {
     return this.props.votes;
   }
-
   get tags(): string[] {
     return [...this.props.tags];
   }
-
   get completedAt(): Date | undefined {
     return this.props.completedAt;
+  }
+  get metadata(): Record<string, any> {
+    return this.props.metadata;
   }
 
   isCompleted(): boolean {

@@ -1,3 +1,6 @@
+import { BaseEntity } from './BaseEntity';
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 export enum ProductStatus {
   ACTIVE = 'active',
   MAINTENANCE = 'maintenance',
@@ -125,31 +128,24 @@ export class Product extends BaseEntity<ProductProps> {
   get workspaceId(): string {
     return this.props.workspaceId;
   }
-
   get name(): string {
     return this.props.name;
   }
-
   get description(): string | undefined {
     return this.props.description;
   }
-
   get platform(): PlatformType {
     return this.props.platform;
   }
-
   get version(): string | undefined {
     return this.props.version;
   }
-
   get status(): ProductStatus {
     return this.props.status;
   }
-
   get icon(): string | undefined {
     return this.props.icon;
   }
-
   get settings(): Record<string, any> {
     return { ...this.props.settings };
   }

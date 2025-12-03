@@ -3,18 +3,21 @@ import { RegisterUser } from '@core/application/use-cases/auth/RegisterUser';
 import { LoginUser } from '@core/application/use-cases/auth/LoginUser';
 import { JwtService } from '@core/application/services/JwtService';
 import { UserRepository } from '@infrastructure/database/repositories/UserRepository';
+import { RedisCache } from '@infrastructure/cache/RedisCache';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 export class AuthController {
   private registerUser: RegisterUser;
   private loginUser: LoginUser;
   private jwtService: JwtService;
+  private redisCache: RedisCache;
 
   constructor() {
     const userRepository = new UserRepository();
     this.registerUser = new RegisterUser(userRepository);
     this.loginUser = new LoginUser(userRepository);
     this.jwtService = new JwtService();
+    this.redisCache = RedisCache.getInstance();
   }
 
   signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -23,7 +26,6 @@ export class AuthController {
 
       const result = await this.registerUser.execute({ email, password, name });
 
-      // Generate tokens
       const accessToken = this.jwtService.generateAccessToken({
         sub: result.userId,
         email: result.email,
@@ -43,7 +45,7 @@ export class AuthController {
           tokens: {
             accessToken,
             refreshToken,
-            expiresIn: 900, // 15 minutes in seconds
+            expiresIn: 900,
           },
         },
       });
@@ -58,12 +60,11 @@ export class AuthController {
 
       const result = await this.loginUser.execute({ email, password });
 
-      // Generate tokens
       const accessToken = this.jwtService.generateAccessToken({
         sub: result.userId,
         email: result.email,
         workspaceId: result.workspaceId,
-        roles: [], // TODO: Fetch from UserRoles
+        roles: [],
       });
 
       const refreshToken = this.jwtService.generateRefreshToken(result.userId);
@@ -99,6 +100,19 @@ export class AuthController {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Refresh token is required',
+          },
+        });
+        return;
+      }
+
+      // Check if token is blacklisted
+      const isBlacklisted = await this.redisCache.isBlacklisted(refreshToken);
+      if (isBlacklisted) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: 'INVALID_TOKEN',
+            message: 'Token has been revoked',
           },
         });
         return;
@@ -173,11 +187,21 @@ export class AuthController {
     }
   };
 
-  logout = async (req: AuthRequest, res: Response): Promise<void> => {
-    // TODO: Add refresh token to blacklist (Redis)
-    res.json({
-      success: true,
-      message: 'Logged out successfully',
-    });
+  logout = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (refreshToken) {
+        // Add token to blacklist for 7 days (refresh token expiry)
+        await this.redisCache.addToBlacklist(refreshToken, 7 * 24 * 60 * 60);
+      }
+
+      res.json({
+        success: true,
+        message: 'Logged out successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 }

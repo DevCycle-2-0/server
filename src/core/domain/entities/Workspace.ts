@@ -1,3 +1,6 @@
+import { BaseEntity } from './BaseEntity';
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 interface WorkspaceSettings {
   timezone: string;
   dateFormat: string;
@@ -74,15 +77,12 @@ export class Workspace extends BaseEntity<WorkspaceProps> {
   get name(): string {
     return this.props.name;
   }
-
   get slug(): string {
     return this.props.slug;
   }
-
   get ownerId(): string {
     return this.props.ownerId;
   }
-
   get settings(): WorkspaceSettings {
     return { ...this.props.settings };
   }

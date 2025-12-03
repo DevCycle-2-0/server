@@ -1,3 +1,5 @@
+import { ValidationError } from '@core/shared/errors/DomainError';
+
 export class Email {
   private constructor(private readonly value: string) {
     this.validate(value);

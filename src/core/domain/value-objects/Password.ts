@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { ValidationError } from '@core/shared/errors/DomainError';
 
 export class Password {
   private constructor(
