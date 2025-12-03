@@ -3,21 +3,21 @@ import { RegisterUser } from '@core/application/use-cases/auth/RegisterUser';
 import { LoginUser } from '@core/application/use-cases/auth/LoginUser';
 import { JwtService } from '@core/application/services/JwtService';
 import { UserRepository } from '@infrastructure/database/repositories/UserRepository';
-import { RedisCache } from '@infrastructure/cache/RedisCache';
+//import { RedisCache } from '@infrastructure/cache/RedisCache';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 export class AuthController {
   private registerUser: RegisterUser;
   private loginUser: LoginUser;
   private jwtService: JwtService;
-  private redisCache: RedisCache;
+  //private redisCache: RedisCache;
 
   constructor() {
     const userRepository = new UserRepository();
     this.registerUser = new RegisterUser(userRepository);
     this.loginUser = new LoginUser(userRepository);
     this.jwtService = new JwtService();
-    this.redisCache = RedisCache.getInstance();
+    //this.redisCache = RedisCache.getInstance();
   }
 
   signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -106,17 +106,17 @@ export class AuthController {
       }
 
       // Check if token is blacklisted
-      const isBlacklisted = await this.redisCache.isBlacklisted(refreshToken);
-      if (isBlacklisted) {
-        res.status(401).json({
-          success: false,
-          error: {
-            code: 'INVALID_TOKEN',
-            message: 'Token has been revoked',
-          },
-        });
-        return;
-      }
+      //   const isBlacklisted = await this.redisCache.isBlacklisted(refreshToken);
+      //   if (isBlacklisted) {
+      //     res.status(401).json({
+      //       success: false,
+      //       error: {
+      //         code: 'INVALID_TOKEN',
+      //         message: 'Token has been revoked',
+      //       },
+      //     });
+      //     return;
+      //   }
 
       const decoded = this.jwtService.verifyRefreshToken(refreshToken);
 
@@ -193,7 +193,7 @@ export class AuthController {
 
       if (refreshToken) {
         // Add token to blacklist for 7 days (refresh token expiry)
-        await this.redisCache.addToBlacklist(refreshToken, 7 * 24 * 60 * 60);
+        //   await this.redisCache.addToBlacklist(refreshToken, 7 * 24 * 60 * 60);
       }
 
       res.json({
