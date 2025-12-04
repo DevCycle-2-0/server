@@ -1,3 +1,10 @@
+import { Response, NextFunction } from 'express';
+import { FeatureRepository } from '@infrastructure/database/repositories/FeatureRepository';
+import { SprintRepository } from '@infrastructure/database/repositories/SprintRepository';
+import { TaskRepository } from '@infrastructure/database/repositories/TaskRepository';
+import { BugRepository } from '@infrastructure/database/repositories/BugRepository';
+import { AuthRequest } from '../middleware/auth.middleware';
+
 export class DashboardController {
   private featureRepository: FeatureRepository;
   private sprintRepository: SprintRepository;
@@ -52,7 +59,7 @@ export class DashboardController {
       res.json({
         success: true,
         data: [],
-        pagination: { page: 1, limit: 10, total: 0 },
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0, hasNext: false, hasPrev: false },
       });
     } catch (error) {
       next(error);
@@ -80,7 +87,7 @@ export class DashboardController {
                 tasksCompleted: completed,
                 daysRemaining: s.getDaysRemaining(),
                 velocity: s.velocity,
-                teamMembers: 5, // Mock
+                teamMembers: 5,
               };
             })
           ),
