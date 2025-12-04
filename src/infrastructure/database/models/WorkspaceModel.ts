@@ -22,21 +22,21 @@ export class WorkspaceModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @AllowNull(false)
   @Column(DataType.STRING(255))
-  name!: string;
+  declare name: string;
 
   @Unique
   @AllowNull(false)
   @Column(DataType.STRING(100))
-  slug!: string;
+  declare slug: string;
 
   @ForeignKey(() => UserModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  owner_id!: string;
+  declare owner_id: string;
 
   @Default({
     timezone: 'UTC',
@@ -45,7 +45,7 @@ export class WorkspaceModel extends Model {
     defaultSprintDuration: 14,
   })
   @Column(DataType.JSONB)
-  settings!: {
+  declare settings: {
     timezone: string;
     dateFormat: string;
     weekStartsOn: number;
@@ -53,8 +53,11 @@ export class WorkspaceModel extends Model {
   };
 
   @BelongsTo(() => UserModel)
-  owner?: UserModel;
+  declare owner?: UserModel;
 
   @HasMany(() => ProductModel)
-  products?: ProductModel[];
+  declare products?: ProductModel[];
+
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }

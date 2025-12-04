@@ -22,71 +22,74 @@ export class FeatureModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => WorkspaceModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  workspace_id!: string;
+  declare workspace_id: string;
 
   @ForeignKey(() => ProductModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  product_id!: string;
+  declare product_id: string;
 
   @AllowNull(false)
   @Column(DataType.STRING(500))
-  title!: string;
+  declare title: string;
 
   @Column(DataType.TEXT)
-  description?: string;
+  declare description: string | null;
 
   @Default('idea')
   @Column(DataType.ENUM('idea', 'review', 'approved', 'development', 'testing', 'release', 'live'))
-  status!: string;
+  declare status: string;
 
   @Default('medium')
   @Column(DataType.ENUM('low', 'medium', 'high', 'critical'))
-  priority!: string;
+  declare priority: string;
 
   @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
-  assignee_id?: string;
+  declare assignee_id: string | null;
 
   @ForeignKey(() => SprintModel)
   @Column(DataType.UUID)
-  sprint_id?: string;
+  declare sprint_id: string | null;
 
   @Column(DataType.INTEGER)
-  estimated_hours?: number;
+  declare estimated_hours: number | null;
 
   @Column(DataType.INTEGER)
-  actual_hours?: number;
+  declare actual_hours: number | null;
 
   @Default(0)
   @Column(DataType.INTEGER)
-  votes!: number;
+  declare votes: number;
 
   @Default([])
   @Column(DataType.ARRAY(DataType.TEXT))
-  tags!: string[];
+  declare tags: string[];
 
   @Default({})
   @Column(DataType.JSONB)
-  metadata!: Record<string, any>;
+  declare metadata: Record<string, any>;
 
   @Column(DataType.DATE)
-  completed_at?: Date;
+  declare completed_at: Date | null;
 
   @BelongsTo(() => WorkspaceModel)
-  workspace?: WorkspaceModel;
+  declare workspace?: WorkspaceModel;
 
   @BelongsTo(() => ProductModel)
-  product?: ProductModel;
+  declare product?: ProductModel;
 
   @BelongsTo(() => UserModel)
-  assignee?: UserModel;
+  declare assignee?: UserModel;
 
   @BelongsTo(() => SprintModel)
-  sprint?: SprintModel;
+  declare sprint?: SprintModel;
+
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }

@@ -4,14 +4,29 @@ import { UserModel } from '../models/UserModel';
 
 export class UserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {
-    const userModel = await UserModel.findByPk(id);
+    const userModel: any = await UserModel.findByPk(id);
     if (!userModel) return null;
+
+    // Add null checks and use getDataValue to ensure we get the actual value
+    const email = userModel.getDataValue('email') || userModel.email;
+    const passwordHash = userModel.getDataValue('password_hash') || userModel.password_hash;
+    const name = userModel.getDataValue('name') || userModel.name;
+
+    if (!email || !passwordHash || !name) {
+      console.error('Missing required fields for user:', {
+        id,
+        email,
+        name,
+        hasPassword: !!passwordHash,
+      });
+      return null;
+    }
 
     return User.reconstitute(
       userModel.id,
-      userModel.email,
-      userModel.password_hash,
-      userModel.name,
+      email,
+      passwordHash,
+      name,
       userModel.avatar || null,
       userModel.workspace_id || null,
       userModel.email_verified,
@@ -23,14 +38,29 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const userModel = await UserModel.findOne({ where: { email: email.toLowerCase() } });
+    const userModel: any = await UserModel.findOne({
+      where: { email: email.toLowerCase() },
+    });
     if (!userModel) return null;
+
+    const userEmail = userModel.getDataValue('email') || userModel.email;
+    const passwordHash = userModel.getDataValue('password_hash') || userModel.password_hash;
+    const userName = userModel.getDataValue('name') || userModel.name;
+
+    if (!userEmail || !passwordHash || !userName) {
+      console.error('Missing required fields for user:', {
+        email: userEmail,
+        name: userName,
+        hasPassword: !!passwordHash,
+      });
+      return null;
+    }
 
     return User.reconstitute(
       userModel.id,
-      userModel.email,
-      userModel.password_hash,
-      userModel.name,
+      userEmail,
+      passwordHash,
+      userName,
       userModel.avatar || null,
       userModel.workspace_id || null,
       userModel.email_verified,

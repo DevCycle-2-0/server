@@ -9,7 +9,6 @@ import {
   AllowNull,
   BelongsTo,
   ForeignKey,
-  HasMany,
 } from 'sequelize-typescript';
 import { WorkspaceModel } from './WorkspaceModel';
 
@@ -21,39 +20,49 @@ export class UserModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @Unique
   @AllowNull(false)
   @Column(DataType.STRING(255))
-  email!: string;
+  declare email: string;
 
   @AllowNull(false)
   @Column(DataType.STRING(255))
-  password_hash!: string;
+  declare password_hash: string;
 
   @AllowNull(false)
   @Column(DataType.STRING(255))
-  name!: string;
+  declare name: string;
 
   @Column(DataType.TEXT)
-  avatar?: string;
+  declare avatar: string | null;
 
   @ForeignKey(() => WorkspaceModel)
   @Column(DataType.UUID)
-  workspace_id?: string;
+  declare workspace_id: string | null;
 
   @Default(false)
   @Column(DataType.BOOLEAN)
-  email_verified!: boolean;
+  declare email_verified: boolean;
 
   @Default(true)
   @Column(DataType.BOOLEAN)
-  is_active!: boolean;
+  declare is_active: boolean;
+
+  @Default(0)
+  @Column(DataType.INTEGER)
+  declare failed_login_attempts: number;
 
   @Column(DataType.DATE)
-  last_login_at?: Date;
+  declare locked_until: Date | null;
+
+  @Column(DataType.DATE)
+  declare last_login_at: Date | null;
 
   @BelongsTo(() => WorkspaceModel)
-  workspace?: WorkspaceModel;
+  declare workspace?: WorkspaceModel;
+
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }

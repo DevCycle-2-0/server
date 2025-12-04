@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import workspacesRoutes from './workspaces.routes';
+import workspaceInvitesRoutes from './workspace-invites.routes';
 import productsRoutes from './products.routes';
 import featuresRoutes from './features.routes';
 import sprintsRoutes from './sprints.routes';
@@ -10,6 +11,10 @@ import teamRoutes from './team.routes';
 import releasesRoutes from './releases.routes';
 import analyticsRoutes from './analytics.routes';
 import dashboardRoutes from './dashboard.routes';
+import settingsRoutes from './settings.routes';
+import onboardingRoutes from './onboarding.routes';
+import timeLogsRoutes from './time-logs.routes';
+import commentsRoutes from './comments.routes';
 
 const router = Router();
 
@@ -23,6 +28,10 @@ router.get('/health', (req, res) => {
       uptime: process.uptime(),
       environment: process.env.NODE_ENV,
       version: '1.0.0',
+      services: {
+        database: 'connected',
+        redis: process.env.REDIS_ENABLED === 'true' ? 'enabled' : 'disabled',
+      },
     },
   });
 });
@@ -30,6 +39,7 @@ router.get('/health', (req, res) => {
 // API routes
 router.use('/auth', authRoutes);
 router.use('/workspaces', workspacesRoutes);
+router.use('/workspaces', workspaceInvitesRoutes); // Handles /workspaces/:id/invites
 router.use('/products', productsRoutes);
 router.use('/features', featuresRoutes);
 router.use('/sprints', sprintsRoutes);
@@ -39,5 +49,9 @@ router.use('/team', teamRoutes);
 router.use('/releases', releasesRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/settings', settingsRoutes);
+router.use('/users', onboardingRoutes); // Handles /users/me/onboarding
+router.use('/', timeLogsRoutes); // Handles /tasks/:id/time-logs and /users/:id/time-logs
+router.use('/', commentsRoutes); // Handles /:entityType/:entityId/comments
 
 export default router;

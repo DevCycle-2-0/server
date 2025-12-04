@@ -22,51 +22,54 @@ export class SprintModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => WorkspaceModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  workspace_id!: string;
+  declare workspace_id: string;
 
   @ForeignKey(() => ProductModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  product_id!: string;
+  declare product_id: string;
 
   @AllowNull(false)
   @Column(DataType.STRING(255))
-  name!: string;
+  declare name: string;
 
   @Column(DataType.TEXT)
-  goal?: string;
+  declare goal: string | null;
 
   @Default('planning')
   @Column(DataType.ENUM('planning', 'active', 'completed', 'cancelled'))
-  status!: string;
+  declare status: string;
 
   @Default('2_weeks')
   @Column(DataType.ENUM('1_week', '2_weeks', '3_weeks', '4_weeks'))
-  duration!: string;
+  declare duration: string;
 
   @AllowNull(false)
   @Column(DataType.DATEONLY)
-  start_date!: Date;
+  declare start_date: Date;
 
   @AllowNull(false)
   @Column(DataType.DATEONLY)
-  end_date!: Date;
+  declare end_date: Date;
 
   @Default(0)
   @Column(DataType.INTEGER)
-  velocity!: number;
+  declare velocity: number;
 
   @BelongsTo(() => WorkspaceModel)
-  workspace?: WorkspaceModel;
+  declare workspace?: WorkspaceModel;
 
   @BelongsTo(() => ProductModel)
-  product?: ProductModel;
+  declare product?: ProductModel;
 
   @HasMany(() => FeatureModel)
-  features?: FeatureModel[];
+  declare features?: FeatureModel[];
+
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }

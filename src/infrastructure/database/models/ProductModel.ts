@@ -22,44 +22,47 @@ export class ProductModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => WorkspaceModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  workspace_id!: string;
+  declare workspace_id: string;
 
   @AllowNull(false)
   @Column(DataType.STRING(255))
-  name!: string;
+  declare name: string;
 
   @Column(DataType.TEXT)
-  description?: string;
+  declare description: string | null;
 
   @AllowNull(false)
   @Column(DataType.ENUM('android', 'ios', 'web', 'dashboard', 'backend', 'api'))
-  platform!: string;
+  declare platform: string;
 
   @Column(DataType.STRING(50))
-  version?: string;
+  declare version: string | null;
 
   @Default('active')
   @Column(DataType.ENUM('active', 'maintenance', 'deprecated', 'archived'))
-  status!: string;
+  declare status: string;
 
   @Column(DataType.TEXT)
-  icon?: string;
+  declare icon: string | null;
 
   @Default({})
   @Column(DataType.JSONB)
-  settings!: Record<string, any>;
+  declare settings: Record<string, any>;
 
   @BelongsTo(() => WorkspaceModel)
-  workspace?: WorkspaceModel;
+  declare workspace?: WorkspaceModel;
 
   @HasMany(() => FeatureModel)
-  features?: FeatureModel[];
+  declare features?: FeatureModel[];
 
   @HasMany(() => SprintModel)
-  sprints?: SprintModel[];
+  declare sprints?: SprintModel[];
+
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }

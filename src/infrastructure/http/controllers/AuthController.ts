@@ -185,6 +185,7 @@ export class AuthControllerComplete {
         },
       });
     } catch (error) {
+      console.error('Error in getMe:', error);
       next(error);
     }
   };
