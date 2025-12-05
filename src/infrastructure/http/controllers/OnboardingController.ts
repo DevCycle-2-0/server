@@ -3,6 +3,7 @@ import { OnboardingProgressModel } from '@infrastructure/database/models/Onboard
 import { AuthRequest } from '../middleware/auth.middleware';
 
 export class OnboardingController {
+  // src/infrastructure/http/controllers/OnboardingController.ts
   getStatus = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       let progress = await OnboardingProgressModel.findOne({
@@ -21,31 +22,36 @@ export class OnboardingController {
           step: 1,
           name: 'create_product',
           title: 'Create your first Product',
-          completed: steps.create_product,
+          completed: steps.create_product?.completed || false,
+          completedAt: steps.create_product?.completedAt || null, // ✅ Added
         },
         {
           step: 2,
           name: 'add_feature',
           title: 'Add your first Feature',
-          completed: steps.add_feature,
+          completed: steps.add_feature?.completed || false,
+          completedAt: steps.add_feature?.completedAt || null, // ✅ Added
         },
         {
           step: 3,
           name: 'invite_team',
           title: 'Invite Team Members',
-          completed: steps.invite_team,
+          completed: steps.invite_team?.completed || false,
+          completedAt: steps.invite_team?.completedAt || null, // ✅ Added
         },
         {
           step: 4,
           name: 'setup_sprint',
           title: 'Setup your first Sprint',
-          completed: steps.setup_sprint,
+          completed: steps.setup_sprint?.completed || false,
+          completedAt: steps.setup_sprint?.completedAt || null, // ✅ Added
         },
         {
           step: 5,
           name: 'customize_workflow',
           title: 'Customize Workflow',
-          completed: steps.customize_workflow,
+          completed: steps.customize_workflow?.completed || false,
+          completedAt: steps.customize_workflow?.completedAt || null, // ✅ Added
         },
       ];
 
@@ -87,13 +93,17 @@ export class OnboardingController {
       ];
 
       if (step >= 1 && step <= 5) {
-        steps[stepNames[step - 1]] = completed;
+        // ✅ Update with timestamp
+        steps[stepNames[step - 1]] = {
+          completed,
+          completedAt: completed ? new Date().toISOString() : null,
+        };
         progress.steps = steps;
 
         // Find next incomplete step
         let nextStep = step + 1;
         for (let i = step; i < 5; i++) {
-          if (!steps[stepNames[i]]) {
+          if (!steps[stepNames[i]]?.completed) {
             nextStep = i + 1;
             break;
           }

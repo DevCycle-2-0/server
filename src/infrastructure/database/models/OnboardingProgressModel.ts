@@ -12,6 +12,19 @@ import {
 } from 'sequelize-typescript';
 import { UserModel } from './UserModel';
 
+interface StepData {
+  completed: boolean;
+  completedAt: Date | null;
+}
+
+interface OnboardingSteps {
+  create_product: StepData;
+  add_feature: StepData;
+  invite_team: StepData;
+  setup_sprint: StepData;
+  customize_workflow: StepData;
+}
+
 @Table({
   tableName: 'onboarding_progress',
   timestamps: true,
@@ -43,11 +56,18 @@ export class OnboardingProgressModel extends Model {
     setup_sprint: false,
     customize_workflow: false,
   })
-  @Column(DataType.JSONB)
-  steps!: object;
-
   @Column(DataType.DATE)
   completed_at?: Date;
+
+  @Default({
+    create_product: { completed: false, completedAt: null },
+    add_feature: { completed: false, completedAt: null },
+    invite_team: { completed: false, completedAt: null },
+    setup_sprint: { completed: false, completedAt: null },
+    customize_workflow: { completed: false, completedAt: null },
+  })
+  @Column(DataType.JSONB)
+  steps!: OnboardingSteps;
 
   @BelongsTo(() => UserModel)
   user?: UserModel;

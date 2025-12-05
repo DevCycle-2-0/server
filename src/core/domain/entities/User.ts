@@ -15,7 +15,12 @@ interface UserProps {
 }
 
 export class User extends BaseEntity<UserProps> {
-  private constructor(id: string, private props: UserProps, createdAt?: Date, updatedAt?: Date) {
+  private constructor(
+    id: string,
+    private props: UserProps,
+    createdAt?: Date,
+    updatedAt?: Date
+  ) {
     super(id, createdAt, updatedAt);
   }
 
@@ -68,6 +73,11 @@ export class User extends BaseEntity<UserProps> {
 
   async validatePassword(plainPassword: string): Promise<boolean> {
     return this.props.password.compare(plainPassword);
+  }
+
+  async changePassword(newPlainPassword: string): Promise<void> {
+    this.props.password = await Password.create(newPlainPassword);
+    this.touch();
   }
 
   updateProfile(name?: string, avatar?: string): void {

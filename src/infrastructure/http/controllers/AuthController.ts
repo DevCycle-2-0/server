@@ -430,9 +430,8 @@ export class AuthControllerComplete {
         return;
       }
 
-      // Update password (you'd need to add this method to User entity)
-      // user.changePassword(newPassword);
-      // await userRepository.update(user);
+      user.changePassword(newPassword);
+      await userRepository.update(user);
 
       resetToken.used = true;
       await resetToken.save();
@@ -477,8 +476,8 @@ export class AuthControllerComplete {
         return;
       }
 
-      // user.changePassword(newPassword);
-      // await userRepository.update(user);
+      user.changePassword(newPassword);
+      await userRepository.update(user);
 
       res.json({
         success: true,
