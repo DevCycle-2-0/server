@@ -22,6 +22,7 @@ interface BugProps {
   workspaceId: string;
   productId: string;
   sprintId?: string;
+  featureId?: string; // Added for feature linking
   title: string;
   description: string;
   stepsToReproduce?: string;
@@ -41,7 +42,12 @@ interface BugProps {
 }
 
 export class Bug extends BaseEntity<BugProps> {
-  private constructor(id: string, private props: BugProps, createdAt?: Date, updatedAt?: Date) {
+  private constructor(
+    id: string,
+    private props: BugProps,
+    createdAt?: Date,
+    updatedAt?: Date
+  ) {
     super(id, createdAt, updatedAt);
   }
 
@@ -85,6 +91,7 @@ export class Bug extends BaseEntity<BugProps> {
     workspaceId: string,
     productId: string,
     sprintId: string | null,
+    featureId: string | null, // Added parameter
     title: string,
     description: string,
     stepsToReproduce: string | null,
@@ -110,6 +117,7 @@ export class Bug extends BaseEntity<BugProps> {
         workspaceId,
         productId,
         sprintId: sprintId || undefined,
+        featureId: featureId || undefined, // Added property
         title,
         description,
         stepsToReproduce: stepsToReproduce || undefined,
@@ -230,8 +238,25 @@ export class Bug extends BaseEntity<BugProps> {
     this.touch();
   }
 
+  // New methods for feature linking
+  linkToFeature(featureId: string): void {
+    this.props.featureId = featureId;
+    this.touch();
+  }
+
+  unlinkFromFeature(): void {
+    this.props.featureId = undefined;
+    this.touch();
+  }
+
   addAttachment(url: string): void {
     this.props.attachments.push(url);
+    this.touch();
+  }
+
+  // New method to remove specific attachment
+  removeAttachment(url: string): void {
+    this.props.attachments = this.props.attachments.filter((a) => a !== url);
     this.touch();
   }
 
@@ -246,6 +271,10 @@ export class Bug extends BaseEntity<BugProps> {
 
   get sprintId(): string | undefined {
     return this.props.sprintId;
+  }
+
+  get featureId(): string | undefined {
+    return this.props.featureId; // New getter
   }
 
   get title(): string {
@@ -302,6 +331,10 @@ export class Bug extends BaseEntity<BugProps> {
 
   get tags(): string[] {
     return [...this.props.tags];
+  }
+
+  get metadata(): Record<string, any> {
+    return { ...this.props.metadata };
   }
 
   get resolvedAt(): Date | undefined {

@@ -1,3 +1,6 @@
+// src/infrastructure/database/models/BugModel.ts
+// Updated with featureId support
+
 import {
   Table,
   Column,
@@ -12,6 +15,7 @@ import {
 import { WorkspaceModel } from './WorkspaceModel';
 import { ProductModel } from './ProductModel';
 import { SprintModel } from './SprintModel';
+import { FeatureModel } from './FeatureModel';
 import { UserModel } from './UserModel';
 
 @Table({
@@ -22,7 +26,7 @@ export class BugModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => WorkspaceModel)
   @AllowNull(false)
@@ -37,6 +41,10 @@ export class BugModel extends Model {
   @ForeignKey(() => SprintModel)
   @Column(DataType.UUID)
   sprint_id?: string;
+
+  @ForeignKey(() => FeatureModel)
+  @Column(DataType.UUID)
+  feature_id?: string; // NEW COLUMN - Add this field
 
   @AllowNull(false)
   @Column(DataType.STRING(500))
@@ -106,6 +114,9 @@ export class BugModel extends Model {
 
   @BelongsTo(() => SprintModel)
   sprint?: SprintModel;
+
+  @BelongsTo(() => FeatureModel)
+  feature?: FeatureModel; // NEW RELATION
 
   @BelongsTo(() => UserModel, 'reporter_id')
   reporter?: UserModel;

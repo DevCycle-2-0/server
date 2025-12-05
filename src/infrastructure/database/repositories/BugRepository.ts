@@ -1,5 +1,9 @@
+// src/infrastructure/database/repositories/BugRepository.ts
+// Updated with featureId support and search functionality
+
 import { Bug, BugStatus, BugSeverity } from '@core/domain/entities/Bug';
 import { BugModel } from '../models/BugModel';
+import { Op } from 'sequelize';
 
 export interface IBugRepository {
   findById(id: string): Promise<Bug | null>;
@@ -12,7 +16,7 @@ export interface IBugRepository {
 
 export class BugRepository implements IBugRepository {
   async findById(id: string): Promise<Bug | null> {
-    const model = await BugModel.findByPk(id);
+    const model: any = await BugModel.findByPk(id);
     if (!model) return null;
 
     return Bug.reconstitute(
@@ -20,6 +24,7 @@ export class BugRepository implements IBugRepository {
       model.workspace_id,
       model.product_id,
       model.sprint_id || null,
+      model.feature_id || null, // Updated parameter
       model.title,
       model.description,
       model.steps_to_reproduce || null,
@@ -44,10 +49,23 @@ export class BugRepository implements IBugRepository {
   async findByWorkspace(workspaceId: string, filters?: any): Promise<Bug[]> {
     const where: any = { workspace_id: workspaceId };
 
+    // Apply filters
     if (filters?.status) where.status = filters.status;
     if (filters?.severity) where.severity = filters.severity;
     if (filters?.productId) where.product_id = filters.productId;
     if (filters?.assigneeId) where.assignee_id = filters.assigneeId;
+    if (filters?.sprintId) where.sprint_id = filters.sprintId;
+    if (filters?.featureId) where.feature_id = filters.featureId;
+    if (filters?.environment) where.environment = filters.environment;
+
+    // Search functionality
+    if (filters?.search) {
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${filters.search}%` } },
+        { description: { [Op.iLike]: `%${filters.search}%` } },
+        { tags: { [Op.contains]: [filters.search] } },
+      ];
+    }
 
     const models = await BugModel.findAll({
       where,
@@ -59,12 +77,13 @@ export class BugRepository implements IBugRepository {
       offset: filters?.offset || 0,
     });
 
-    return models.map((model) =>
+    return models.map((model: any) =>
       Bug.reconstitute(
         model.id,
         model.workspace_id,
         model.product_id,
         model.sprint_id || null,
+        model.feature_id || null, // Updated parameter
         model.title,
         model.description,
         model.steps_to_reproduce || null,
@@ -96,12 +115,13 @@ export class BugRepository implements IBugRepository {
       ],
     });
 
-    return models.map((model) =>
+    return models.map((model: any) =>
       Bug.reconstitute(
         model.id,
         model.workspace_id,
         model.product_id,
         model.sprint_id || null,
+        model.feature_id || null, // Updated parameter
         model.title,
         model.description,
         model.steps_to_reproduce || null,
@@ -130,6 +150,7 @@ export class BugRepository implements IBugRepository {
       workspace_id: bug.workspaceId,
       product_id: bug.productId,
       sprint_id: bug.sprintId,
+      feature_id: bug.featureId, // Updated field
       title: bug.title,
       description: bug.description,
       steps_to_reproduce: bug.stepsToReproduce,
@@ -163,6 +184,8 @@ export class BugRepository implements IBugRepository {
         browser: bug.browser,
         os: bug.os,
         assignee_id: bug.assigneeId,
+        sprint_id: bug.sprintId,
+        feature_id: bug.featureId, // Updated field
         attachments: bug.attachments,
         tags: bug.tags,
         metadata: bug.metadata || {},
