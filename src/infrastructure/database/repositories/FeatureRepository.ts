@@ -1,6 +1,10 @@
+// src/infrastructure/database/repositories/FeatureRepository.ts
+// Enhanced with vote tracking and search functionality
+
 import { IFeatureRepository } from '@core/domain/repositories/IFeatureRepository';
 import { Feature, FeatureStatus, Priority } from '@core/domain/entities/Feature';
 import { FeatureModel } from '../models/FeatureModel';
+import { Op } from 'sequelize';
 
 export class FeatureRepository implements IFeatureRepository {
   async findById(id: string): Promise<Feature | null> {
@@ -20,6 +24,13 @@ export class FeatureRepository implements IFeatureRepository {
       model.estimated_hours || null,
       model.actual_hours || null,
       model.votes,
+      model.voted_by || [], // New field
+      model.approved_by || null, // New field
+      model.approved_at || null, // New field
+      model.approval_comment || null, // New field
+      model.rejected_by || null, // New field
+      model.rejected_at || null, // New field
+      model.rejection_reason || null, // New field
       model.tags,
       model.metadata,
       model.completed_at || null,
@@ -48,6 +59,13 @@ export class FeatureRepository implements IFeatureRepository {
         model.estimated_hours || null,
         model.actual_hours || null,
         model.votes,
+        model.voted_by || [],
+        model.approved_by || null,
+        model.approved_at || null,
+        model.approval_comment || null,
+        model.rejected_by || null,
+        model.rejected_at || null,
+        model.rejection_reason || null,
         model.tags,
         model.metadata,
         model.completed_at || null,
@@ -60,6 +78,7 @@ export class FeatureRepository implements IFeatureRepository {
   async findByWorkspace(workspaceId: string, filters?: any): Promise<Feature[]> {
     const where: any = { workspace_id: workspaceId };
 
+    // Apply filters
     if (filters?.status) {
       where.status = filters.status;
     }
@@ -78,6 +97,15 @@ export class FeatureRepository implements IFeatureRepository {
 
     if (filters?.assigneeId) {
       where.assignee_id = filters.assigneeId;
+    }
+
+    // Search functionality
+    if (filters?.search) {
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${filters.search}%` } },
+        { description: { [Op.iLike]: `%${filters.search}%` } },
+        { tags: { [Op.contains]: [filters.search] } },
+      ];
     }
 
     const models = await FeatureModel.findAll({
@@ -104,6 +132,13 @@ export class FeatureRepository implements IFeatureRepository {
         model.estimated_hours || null,
         model.actual_hours || null,
         model.votes,
+        model.voted_by || [],
+        model.approved_by || null,
+        model.approved_at || null,
+        model.approval_comment || null,
+        model.rejected_by || null,
+        model.rejected_at || null,
+        model.rejection_reason || null,
         model.tags,
         model.metadata,
         model.completed_at || null,
@@ -127,6 +162,13 @@ export class FeatureRepository implements IFeatureRepository {
       estimated_hours: feature.estimatedHours,
       actual_hours: feature.actualHours,
       votes: feature.votes,
+      voted_by: feature.votedBy, // New field
+      approved_by: feature.approvedBy, // New field
+      approved_at: feature.approvedAt, // New field
+      approval_comment: feature.approvalComment, // New field
+      rejected_by: feature.rejectedBy, // New field
+      rejected_at: feature.rejectedAt, // New field
+      rejection_reason: feature.rejectionReason, // New field
       tags: feature.tags,
       metadata: feature.metadata || {},
       completed_at: feature.completedAt,
@@ -145,6 +187,13 @@ export class FeatureRepository implements IFeatureRepository {
         estimated_hours: feature.estimatedHours,
         actual_hours: feature.actualHours,
         votes: feature.votes,
+        voted_by: feature.votedBy, // New field
+        approved_by: feature.approvedBy, // New field
+        approved_at: feature.approvedAt, // New field
+        approval_comment: feature.approvalComment, // New field
+        rejected_by: feature.rejectedBy, // New field
+        rejected_at: feature.rejectedAt, // New field
+        rejection_reason: feature.rejectionReason, // New field
         tags: feature.tags,
         metadata: feature.metadata || {},
         completed_at: feature.completedAt,

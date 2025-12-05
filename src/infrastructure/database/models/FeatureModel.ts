@@ -1,3 +1,6 @@
+// src/infrastructure/database/models/FeatureModel.ts
+// Enhanced with vote tracking and approval/rejection fields
+
 import {
   Table,
   Column,
@@ -42,7 +45,18 @@ export class FeatureModel extends Model {
   declare description: string | null;
 
   @Default('idea')
-  @Column(DataType.ENUM('idea', 'review', 'approved', 'development', 'testing', 'release', 'live'))
+  @Column(
+    DataType.ENUM(
+      'idea',
+      'review',
+      'approved',
+      'development',
+      'testing',
+      'release',
+      'live',
+      'rejected'
+    )
+  )
   declare status: string;
 
   @Default('medium')
@@ -68,6 +82,30 @@ export class FeatureModel extends Model {
   declare votes: number;
 
   @Default([])
+  @Column(DataType.ARRAY(DataType.UUID))
+  declare voted_by: string[]; // NEW: Track who voted
+
+  @ForeignKey(() => UserModel)
+  @Column(DataType.UUID)
+  declare approved_by: string | null; // NEW: Who approved
+
+  @Column(DataType.DATE)
+  declare approved_at: Date | null; // NEW: When approved
+
+  @Column(DataType.TEXT)
+  declare approval_comment: string | null; // NEW: Approval comment
+
+  @ForeignKey(() => UserModel)
+  @Column(DataType.UUID)
+  declare rejected_by: string | null; // NEW: Who rejected
+
+  @Column(DataType.DATE)
+  declare rejected_at: Date | null; // NEW: When rejected
+
+  @Column(DataType.TEXT)
+  declare rejection_reason: string | null; // NEW: Rejection reason
+
+  @Default([])
   @Column(DataType.ARRAY(DataType.TEXT))
   declare tags: string[];
 
@@ -84,8 +122,14 @@ export class FeatureModel extends Model {
   @BelongsTo(() => ProductModel)
   declare product?: ProductModel;
 
-  @BelongsTo(() => UserModel)
+  @BelongsTo(() => UserModel, 'assignee_id')
   declare assignee?: UserModel;
+
+  @BelongsTo(() => UserModel, 'approved_by')
+  declare approver?: UserModel;
+
+  @BelongsTo(() => UserModel, 'rejected_by')
+  declare rejector?: UserModel;
 
   @BelongsTo(() => SprintModel)
   declare sprint?: SprintModel;
