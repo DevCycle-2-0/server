@@ -1,9 +1,13 @@
+// src/infrastructure/http/controllers/AuthController.ts
 import { Request, Response, NextFunction } from 'express';
 import { RegisterUser } from '@core/application/use-cases/auth/RegisterUser';
 import { LoginUser } from '@core/application/use-cases/auth/LoginUser';
 import { JwtService } from '@core/application/services/JwtService';
 import { ConsoleEmailService } from '@core/application/services/EmailService';
 import { UserRepository } from '@infrastructure/database/repositories/UserRepository';
+import { WorkspaceRepository } from '@infrastructure/database/repositories/WorkspaceRepository';
+import { Workspace } from '@core/domain/entities/Workspace';
+import { UserRoleModel } from '@infrastructure/database/models/UserRoleModel';
 import { VerificationTokenModel } from '@infrastructure/database/models/VerificationTokenModel';
 import { AuthRequest } from '../middleware/auth.middleware';
 import crypto from 'crypto';
@@ -13,6 +17,7 @@ export class AuthControllerComplete {
   private loginUser: LoginUser;
   private jwtService: JwtService;
   private emailService: ConsoleEmailService;
+  private workspaceRepository: WorkspaceRepository;
 
   constructor() {
     const userRepository = new UserRepository();
@@ -20,18 +25,42 @@ export class AuthControllerComplete {
     this.loginUser = new LoginUser(userRepository);
     this.jwtService = new JwtService();
     this.emailService = new ConsoleEmailService();
+    this.workspaceRepository = new WorkspaceRepository();
   }
 
   signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { email, password, name } = req.body;
 
+      // Register user
       const result = await this.registerUser.execute({ email, password, name });
 
+      // Create workspace for user
+      const workspaceName = `${name}'s Workspace`;
+      const workspace = Workspace.create(workspaceName, result.userId);
+      await this.workspaceRepository.save(workspace);
+
+      // Assign user to workspace
+      const userRepository = new UserRepository();
+      const user = await userRepository.findById(result.userId);
+      if (user) {
+        user.joinWorkspace(workspace.id);
+        await userRepository.update(user);
+      }
+
+      // Assign owner role
+      await UserRoleModel.create({
+        user_id: result.userId,
+        workspace_id: workspace.id,
+        role: 'owner',
+      });
+
+      // Generate tokens
       const accessToken = this.jwtService.generateAccessToken({
         sub: result.userId,
         email: result.email,
-        roles: [],
+        workspaceId: workspace.id,
+        roles: ['owner'],
       });
 
       const refreshToken = this.jwtService.generateRefreshToken(result.userId);
@@ -43,6 +72,12 @@ export class AuthControllerComplete {
             id: result.userId,
             email: result.email,
             name: result.name,
+            workspaceId: workspace.id,
+          },
+          workspace: {
+            id: workspace.id,
+            name: workspace.name,
+            slug: workspace.slug,
           },
           tokens: {
             accessToken,
@@ -62,11 +97,19 @@ export class AuthControllerComplete {
 
       const result = await this.loginUser.execute({ email, password });
 
+      // Get user roles
+      const roles = await UserRoleModel.findAll({
+        where: { user_id: result.userId },
+        attributes: ['role'],
+      });
+
+      const roleNames = roles.map((r) => r.role);
+
       const accessToken = this.jwtService.generateAccessToken({
         sub: result.userId,
         email: result.email,
         workspaceId: result.workspaceId,
-        roles: [],
+        roles: roleNames,
       });
 
       const refreshToken = this.jwtService.generateRefreshToken(result.userId);
@@ -107,19 +150,6 @@ export class AuthControllerComplete {
         return;
       }
 
-      // Check if token is blacklisted
-      //   const isBlacklisted = await this.redisCache.isBlacklisted(refreshToken);
-      //   if (isBlacklisted) {
-      //     res.status(401).json({
-      //       success: false,
-      //       error: {
-      //         code: 'INVALID_TOKEN',
-      //         message: 'Token has been revoked',
-      //       },
-      //     });
-      //     return;
-      //   }
-
       const decoded = this.jwtService.verifyRefreshToken(refreshToken);
 
       const userRepository = new UserRepository();
@@ -136,11 +166,19 @@ export class AuthControllerComplete {
         return;
       }
 
+      // Get user roles
+      const roles = await UserRoleModel.findAll({
+        where: { user_id: user.id },
+        attributes: ['role'],
+      });
+
+      const roleNames = roles.map((r) => r.role);
+
       const accessToken = this.jwtService.generateAccessToken({
         sub: user.id,
         email: user.email,
         workspaceId: user.workspaceId,
-        roles: [],
+        roles: roleNames,
       });
 
       res.json({
@@ -195,8 +233,7 @@ export class AuthControllerComplete {
       const { refreshToken } = req.body;
 
       if (refreshToken) {
-        // Add token to blacklist for 7 days (refresh token expiry)
-        //   await this.redisCache.addToBlacklist(refreshToken, 7 * 24 * 60 * 60);
+        // Add token to blacklist if Redis is configured
       }
 
       res.json({
@@ -242,10 +279,17 @@ export class AuthControllerComplete {
 
   getRoles = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // In real implementation, fetch from UserRoleModel
+      const roles = await UserRoleModel.findAll({
+        where: { user_id: req.user!.sub },
+        attributes: ['role', 'workspace_id'],
+      });
+
       res.json({
         success: true,
-        data: req.user?.roles || [],
+        data: roles.map((r) => ({
+          role: r.role,
+          workspaceId: r.workspace_id,
+        })),
       });
     } catch (error) {
       next(error);
@@ -430,7 +474,7 @@ export class AuthControllerComplete {
         return;
       }
 
-      user.changePassword(newPassword);
+      await user.changePassword(newPassword);
       await userRepository.update(user);
 
       resetToken.used = true;
@@ -476,7 +520,7 @@ export class AuthControllerComplete {
         return;
       }
 
-      user.changePassword(newPassword);
+      await user.changePassword(newPassword);
       await userRepository.update(user);
 
       res.json({
