@@ -1,3 +1,4 @@
+// src/infrastructure/database/models/UserRoleModel.ts
 import {
   Table,
   Column,
@@ -8,7 +9,6 @@ import {
   AllowNull,
   ForeignKey,
   BelongsTo,
-  Unique,
 } from 'sequelize-typescript';
 import { UserModel } from './UserModel';
 import { WorkspaceModel } from './WorkspaceModel';
@@ -19,30 +19,31 @@ import { WorkspaceModel } from './WorkspaceModel';
   updatedAt: false,
 })
 export class UserRoleModel extends Model {
+  // ✅ FIX: Use 'declare' keyword instead of '!' to avoid shadowing
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => UserModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  user_id!: string;
+  declare user_id: string;
 
   @ForeignKey(() => WorkspaceModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  workspace_id!: string;
+  declare workspace_id: string;
 
   @AllowNull(false)
   @Column(
     DataType.ENUM('owner', 'admin', 'product_manager', 'developer', 'designer', 'qa', 'viewer')
   )
-  role!: string;
+  declare role: string;
 
   @BelongsTo(() => UserModel)
-  user?: UserModel;
+  declare user?: UserModel;
 
   @BelongsTo(() => WorkspaceModel)
-  workspace?: WorkspaceModel;
+  declare workspace?: WorkspaceModel;
 }
