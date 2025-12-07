@@ -4,8 +4,10 @@ import { VoteFeature } from '@core/application/use-cases/features/VoteFeature';
 import { ApproveFeature } from '@core/application/use-cases/features/ApproveFeature';
 import { FeatureRepository } from '@infrastructure/database/repositories/FeatureRepository';
 import { TaskRepository } from '@infrastructure/database/repositories/TaskRepository';
+import { CommentRepository } from '@infrastructure/database/repositories/CommentRepository';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { FeatureStatus } from '@core/domain/entities/Feature';
+import { CommentableType } from '@core/domain/entities/Comment';
 
 export class FeaturesController {
   private createFeature: CreateFeature;
@@ -13,10 +15,12 @@ export class FeaturesController {
   private approveFeature: ApproveFeature;
   private featureRepository: FeatureRepository;
   private taskRepository: TaskRepository;
+  private commentRepository: CommentRepository;
 
   constructor() {
     this.featureRepository = new FeatureRepository();
     this.taskRepository = new TaskRepository();
+    this.commentRepository = new CommentRepository();
     this.createFeature = new CreateFeature(this.featureRepository);
     this.voteFeature = new VoteFeature(this.featureRepository);
     this.approveFeature = new ApproveFeature(this.featureRepository);
@@ -80,15 +84,26 @@ export class FeaturesController {
           id: f.id,
           title: f.title,
           description: f.description,
+          businessValue: f.businessValue,
+          targetUsers: f.targetUsers,
           status: f.status,
           priority: f.priority,
           productId: f.productId,
+          requesterId: f.requesterId,
           assigneeId: f.assigneeId,
           sprintId: f.sprintId,
           estimatedHours: f.estimatedHours,
           actualHours: f.actualHours,
           votes: f.votes,
-          votedBy: f.votedBy || [], // New field
+          votedBy: f.votedBy || [],
+          approvedBy: f.approvedBy,
+          approvedAt: f.approvedAt,
+          approvalComment: f.approvalComment,
+          rejectedBy: f.rejectedBy,
+          rejectedAt: f.rejectedAt,
+          rejectionReason: f.rejectionReason,
+          attachments: f.attachments || [],
+          targetVersion: f.targetVersion,
           tags: f.tags,
           completedAt: f.completedAt,
           createdAt: f.createdAt,
@@ -133,14 +148,25 @@ export class FeaturesController {
           productId: feature.productId,
           title: feature.title,
           description: feature.description,
+          businessValue: feature.businessValue,
+          targetUsers: feature.targetUsers,
           status: feature.status,
           priority: feature.priority,
+          requesterId: feature.requesterId,
           assigneeId: feature.assigneeId,
           sprintId: feature.sprintId,
           estimatedHours: feature.estimatedHours,
           actualHours: feature.actualHours,
           votes: feature.votes,
           votedBy: feature.votedBy || [],
+          approvedBy: feature.approvedBy,
+          approvedAt: feature.approvedAt,
+          approvalComment: feature.approvalComment,
+          rejectedBy: feature.rejectedBy,
+          rejectedAt: feature.rejectedAt,
+          rejectionReason: feature.rejectionReason,
+          attachments: feature.attachments || [],
+          targetVersion: feature.targetVersion,
           tags: feature.tags,
           metadata: feature.metadata,
           completedAt: feature.completedAt,
@@ -168,7 +194,18 @@ export class FeaturesController {
         return;
       }
 
-      const { productId, title, description, priority, status } = req.body;
+      const {
+        productId,
+        title,
+        description,
+        businessValue,
+        targetUsers,
+        priority,
+        status,
+        targetVersion,
+      } = req.body;
+
+      const requesterId = req.user!.sub;
 
       const result = await this.createFeature.execute({
         workspaceId,
@@ -177,21 +214,31 @@ export class FeaturesController {
         description,
       });
 
-      // Update priority and status if provided
-      if (priority || status) {
-        const feature = await this.featureRepository.findById(result.featureId);
-        if (feature) {
-          if (priority) {
-            feature.update({ priority });
-          }
-          if (status) {
-            feature.changeStatus(status);
-          }
-          await this.featureRepository.update(feature);
+      // Update additional fields if provided
+      const feature = await this.featureRepository.findById(result.featureId);
+      if (feature) {
+        feature.update({
+          businessValue,
+          targetUsers,
+          priority: priority || 'medium',
+          targetVersion,
+        });
+
+        if (status) {
+          feature.changeStatus(status);
         }
+
+        await this.featureRepository.update(feature);
       }
 
-      res.status(201).json({ success: true, data: result });
+      res.status(201).json({
+        success: true,
+        data: {
+          featureId: result.featureId,
+          title: result.title,
+          status: result.status,
+        },
+      });
     } catch (error) {
       next(error);
     }
@@ -204,7 +251,16 @@ export class FeaturesController {
   update = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const { title, description, priority, estimatedHours, tags } = req.body;
+      const {
+        title,
+        description,
+        businessValue,
+        targetUsers,
+        priority,
+        estimatedHours,
+        targetVersion,
+        tags,
+      } = req.body;
 
       const feature = await this.featureRepository.findById(id);
       if (!feature) {
@@ -215,7 +271,17 @@ export class FeaturesController {
         return;
       }
 
-      feature.update({ title, description, priority, estimatedHours, tags });
+      feature.update({
+        title,
+        description,
+        businessValue,
+        targetUsers,
+        priority,
+        estimatedHours,
+        targetVersion,
+        tags,
+      });
+
       await this.featureRepository.update(feature);
 
       res.json({
@@ -388,7 +454,7 @@ export class FeaturesController {
         return;
       }
 
-      feature.vote(userId); // Updated to accept userId
+      feature.vote(userId);
       await this.featureRepository.update(feature);
 
       res.json({
@@ -433,7 +499,7 @@ export class FeaturesController {
         return;
       }
 
-      feature.unvote(userId); // Updated to accept userId
+      feature.unvote(userId);
       await this.featureRepository.update(feature);
 
       res.json({
@@ -469,7 +535,7 @@ export class FeaturesController {
         return;
       }
 
-      feature.approve(userId, comment); // Updated to accept userId and comment
+      feature.approve(userId, comment);
       await this.featureRepository.update(feature);
 
       res.json({
@@ -478,6 +544,8 @@ export class FeaturesController {
           id: feature.id,
           status: feature.status,
           approvedBy: userId,
+          approvedAt: feature.approvedAt,
+          approvalComment: comment,
           updatedAt: feature.updatedAt,
         },
         message: 'Feature approved successfully',
@@ -517,7 +585,7 @@ export class FeaturesController {
         return;
       }
 
-      feature.reject(userId, reason); // New method
+      feature.reject(userId, reason);
       await this.featureRepository.update(feature);
 
       res.json({
@@ -526,6 +594,7 @@ export class FeaturesController {
           id: feature.id,
           status: feature.status,
           rejectedBy: userId,
+          rejectedAt: feature.rejectedAt,
           rejectionReason: reason,
           updatedAt: feature.updatedAt,
         },
@@ -585,8 +654,77 @@ export class FeaturesController {
   };
 
   /**
-   * Comments are handled via the comments router
-   * GET /feature/:featureId/comments
-   * POST /feature/:featureId/comments
+   * GET /features/:id/comments
+   * Get feature comments
    */
+  getComments = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      const feature = await this.featureRepository.findById(id);
+      if (!feature) {
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Feature not found' },
+        });
+        return;
+      }
+
+      const comments = await this.commentRepository.findByEntity(CommentableType.FEATURE, id);
+
+      res.json({
+        success: true,
+        data: comments.map((c) => ({
+          id: c.id,
+          content: c.content,
+          authorId: c.authorId,
+          parentId: c.parentId,
+          isEdited: c.isEdited,
+          editedAt: c.editedAt,
+          createdAt: c.createdAt,
+        })),
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * POST /features/:id/comments
+   * Add comment to feature
+   */
+  addComment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      const workspaceId = req.user!.workspaceId!;
+      const authorId = req.user!.sub;
+
+      const feature = await this.featureRepository.findById(id);
+      if (!feature) {
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Feature not found' },
+        });
+        return;
+      }
+
+      const { Comment } = await import('@core/domain/entities/Comment');
+      const comment = Comment.create(workspaceId, authorId, CommentableType.FEATURE, id, content);
+
+      await this.commentRepository.save(comment);
+
+      res.status(201).json({
+        success: true,
+        data: {
+          id: comment.id,
+          content: comment.content,
+          authorId: comment.authorId,
+          createdAt: comment.createdAt,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
