@@ -3,7 +3,6 @@ import { OnboardingProgressModel } from '@infrastructure/database/models/Onboard
 import { AuthRequest } from '../middleware/auth.middleware';
 
 export class OnboardingController {
-  // src/infrastructure/http/controllers/OnboardingController.ts
   getStatus = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       let progress = await OnboardingProgressModel.findOne({
@@ -17,41 +16,43 @@ export class OnboardingController {
       }
 
       const steps = progress.steps as any;
+
+      // ✅ UPDATED: Step names now match documentation
       const stepsArray = [
         {
           step: 1,
-          name: 'create_product',
-          title: 'Create your first Product',
-          completed: steps.create_product?.completed || false,
-          completedAt: steps.create_product?.completedAt || null, // ✅ Added
+          name: 'workspace_setup',
+          title: 'Set up your workspace',
+          completed: steps.workspace_setup?.completed || false,
+          completedAt: steps.workspace_setup?.completedAt || null,
         },
         {
           step: 2,
-          name: 'add_feature',
-          title: 'Add your first Feature',
-          completed: steps.add_feature?.completed || false,
-          completedAt: steps.add_feature?.completedAt || null, // ✅ Added
+          name: 'invite_team',
+          title: 'Invite your team',
+          completed: steps.invite_team?.completed || false,
+          completedAt: steps.invite_team?.completedAt || null,
         },
         {
           step: 3,
-          name: 'invite_team',
-          title: 'Invite Team Members',
-          completed: steps.invite_team?.completed || false,
-          completedAt: steps.invite_team?.completedAt || null, // ✅ Added
+          name: 'create_product',
+          title: 'Create your first product',
+          completed: steps.create_product?.completed || false,
+          completedAt: steps.create_product?.completedAt || null,
         },
         {
           step: 4,
-          name: 'setup_sprint',
-          title: 'Setup your first Sprint',
-          completed: steps.setup_sprint?.completed || false,
-          completedAt: steps.setup_sprint?.completedAt || null, // ✅ Added
+          name: 'add_feature',
+          title: 'Add your first feature',
+          completed: steps.add_feature?.completed || false,
+          completedAt: steps.add_feature?.completedAt || null,
         },
         {
           step: 5,
-          name: 'customize_workflow',
-          title: 'Customize Workflow',
-          completed: steps.customize_workflow?.completed || false,
-          completedAt: steps.customize_workflow?.completedAt || null, // ✅ Added
+          name: 'complete_setup',
+          title: 'Complete your setup',
+          completed: steps.complete_setup?.completed || false,
+          completedAt: steps.complete_setup?.completedAt || null,
         },
       ];
 
@@ -84,12 +85,14 @@ export class OnboardingController {
       }
 
       const steps = progress.steps as any;
+
+      // ✅ UPDATED: Step names array matches documentation
       const stepNames = [
+        'workspace_setup',
+        'invite_team',
         'create_product',
         'add_feature',
-        'invite_team',
-        'setup_sprint',
-        'customize_workflow',
+        'complete_setup',
       ];
 
       if (step >= 1 && step <= 5) {

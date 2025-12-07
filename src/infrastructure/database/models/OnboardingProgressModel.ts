@@ -17,12 +17,13 @@ interface StepData {
   completedAt: Date | null;
 }
 
+// ✅ UPDATED: Interface now matches documentation step names
 interface OnboardingSteps {
+  workspace_setup: StepData;
+  invite_team: StepData;
   create_product: StepData;
   add_feature: StepData;
-  invite_team: StepData;
-  setup_sprint: StepData;
-  customize_workflow: StepData;
+  complete_setup: StepData;
 }
 
 @Table({
@@ -49,22 +50,16 @@ export class OnboardingProgressModel extends Model {
   @Column(DataType.INTEGER)
   current_step!: number;
 
-  @Default({
-    create_product: false,
-    add_feature: false,
-    invite_team: false,
-    setup_sprint: false,
-    customize_workflow: false,
-  })
   @Column(DataType.DATE)
   completed_at?: Date;
 
+  // ✅ UPDATED: Default step names now match documentation
   @Default({
+    workspace_setup: { completed: false, completedAt: null },
+    invite_team: { completed: false, completedAt: null },
     create_product: { completed: false, completedAt: null },
     add_feature: { completed: false, completedAt: null },
-    invite_team: { completed: false, completedAt: null },
-    setup_sprint: { completed: false, completedAt: null },
-    customize_workflow: { completed: false, completedAt: null },
+    complete_setup: { completed: false, completedAt: null },
   })
   @Column(DataType.JSONB)
   steps!: OnboardingSteps;
