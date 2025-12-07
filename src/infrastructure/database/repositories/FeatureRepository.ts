@@ -1,6 +1,3 @@
-// src/infrastructure/database/repositories/FeatureRepository.ts
-// Enhanced with vote tracking and search functionality
-
 import { IFeatureRepository } from '@core/domain/repositories/IFeatureRepository';
 import { Feature, FeatureStatus, Priority } from '@core/domain/entities/Feature';
 import { FeatureModel } from '../models/FeatureModel';
@@ -17,6 +14,9 @@ export class FeatureRepository implements IFeatureRepository {
       model.product_id,
       model.title,
       model.description || null,
+      model.business_value || null, // ✅ ADDED
+      model.target_users || null, // ✅ ADDED
+      model.requester_id, // ✅ ADDED
       model.status as FeatureStatus,
       model.priority as Priority,
       model.assignee_id || null,
@@ -24,13 +24,15 @@ export class FeatureRepository implements IFeatureRepository {
       model.estimated_hours || null,
       model.actual_hours || null,
       model.votes,
-      model.voted_by || [], // New field
-      model.approved_by || null, // New field
-      model.approved_at || null, // New field
-      model.approval_comment || null, // New field
-      model.rejected_by || null, // New field
-      model.rejected_at || null, // New field
-      model.rejection_reason || null, // New field
+      model.voted_by || [],
+      model.approved_by || null,
+      model.approved_at || null,
+      model.approval_comment || null,
+      model.rejected_by || null,
+      model.rejected_at || null,
+      model.rejection_reason || null,
+      model.attachments || [], // ✅ ADDED
+      model.target_version || null, // ✅ ADDED
       model.tags,
       model.metadata,
       model.completed_at || null,
@@ -52,6 +54,9 @@ export class FeatureRepository implements IFeatureRepository {
         model.product_id,
         model.title,
         model.description || null,
+        model.business_value || null, // ✅ ADDED
+        model.target_users || null, // ✅ ADDED
+        model.requester_id, // ✅ ADDED
         model.status as FeatureStatus,
         model.priority as Priority,
         model.assignee_id || null,
@@ -66,6 +71,8 @@ export class FeatureRepository implements IFeatureRepository {
         model.rejected_by || null,
         model.rejected_at || null,
         model.rejection_reason || null,
+        model.attachments || [], // ✅ ADDED
+        model.target_version || null, // ✅ ADDED
         model.tags,
         model.metadata,
         model.completed_at || null,
@@ -78,7 +85,6 @@ export class FeatureRepository implements IFeatureRepository {
   async findByWorkspace(workspaceId: string, filters?: any): Promise<Feature[]> {
     const where: any = { workspace_id: workspaceId };
 
-    // Apply filters
     if (filters?.status) {
       where.status = filters.status;
     }
@@ -99,7 +105,6 @@ export class FeatureRepository implements IFeatureRepository {
       where.assignee_id = filters.assigneeId;
     }
 
-    // Search functionality
     if (filters?.search) {
       where[Op.or] = [
         { title: { [Op.iLike]: `%${filters.search}%` } },
@@ -125,6 +130,9 @@ export class FeatureRepository implements IFeatureRepository {
         model.product_id,
         model.title,
         model.description || null,
+        model.business_value || null, // ✅ ADDED
+        model.target_users || null, // ✅ ADDED
+        model.requester_id, // ✅ ADDED
         model.status as FeatureStatus,
         model.priority as Priority,
         model.assignee_id || null,
@@ -139,6 +147,8 @@ export class FeatureRepository implements IFeatureRepository {
         model.rejected_by || null,
         model.rejected_at || null,
         model.rejection_reason || null,
+        model.attachments || [], // ✅ ADDED
+        model.target_version || null, // ✅ ADDED
         model.tags,
         model.metadata,
         model.completed_at || null,
@@ -155,6 +165,9 @@ export class FeatureRepository implements IFeatureRepository {
       product_id: feature.productId,
       title: feature.title,
       description: feature.description,
+      business_value: feature.businessValue, // ✅ ADDED
+      target_users: feature.targetUsers, // ✅ ADDED
+      requester_id: feature.requesterId, // ✅ ADDED
       status: feature.status,
       priority: feature.priority,
       assignee_id: feature.assigneeId,
@@ -162,13 +175,15 @@ export class FeatureRepository implements IFeatureRepository {
       estimated_hours: feature.estimatedHours,
       actual_hours: feature.actualHours,
       votes: feature.votes,
-      voted_by: feature.votedBy, // New field
-      approved_by: feature.approvedBy, // New field
-      approved_at: feature.approvedAt, // New field
-      approval_comment: feature.approvalComment, // New field
-      rejected_by: feature.rejectedBy, // New field
-      rejected_at: feature.rejectedAt, // New field
-      rejection_reason: feature.rejectionReason, // New field
+      voted_by: feature.votedBy,
+      approved_by: feature.approvedBy,
+      approved_at: feature.approvedAt,
+      approval_comment: feature.approvalComment,
+      rejected_by: feature.rejectedBy,
+      rejected_at: feature.rejectedAt,
+      rejection_reason: feature.rejectionReason,
+      attachments: feature.attachments, // ✅ ADDED
+      target_version: feature.targetVersion, // ✅ ADDED
       tags: feature.tags,
       metadata: feature.metadata || {},
       completed_at: feature.completedAt,
@@ -180,6 +195,8 @@ export class FeatureRepository implements IFeatureRepository {
       {
         title: feature.title,
         description: feature.description,
+        business_value: feature.businessValue, // ✅ ADDED
+        target_users: feature.targetUsers, // ✅ ADDED
         status: feature.status,
         priority: feature.priority,
         assignee_id: feature.assigneeId,
@@ -187,13 +204,15 @@ export class FeatureRepository implements IFeatureRepository {
         estimated_hours: feature.estimatedHours,
         actual_hours: feature.actualHours,
         votes: feature.votes,
-        voted_by: feature.votedBy, // New field
-        approved_by: feature.approvedBy, // New field
-        approved_at: feature.approvedAt, // New field
-        approval_comment: feature.approvalComment, // New field
-        rejected_by: feature.rejectedBy, // New field
-        rejected_at: feature.rejectedAt, // New field
-        rejection_reason: feature.rejectionReason, // New field
+        voted_by: feature.votedBy,
+        approved_by: feature.approvedBy,
+        approved_at: feature.approvedAt,
+        approval_comment: feature.approvalComment,
+        rejected_by: feature.rejectedBy,
+        rejected_at: feature.rejectedAt,
+        rejection_reason: feature.rejectionReason,
+        attachments: feature.attachments, // ✅ ADDED
+        target_version: feature.targetVersion, // ✅ ADDED
         tags: feature.tags,
         metadata: feature.metadata || {},
         completed_at: feature.completedAt,

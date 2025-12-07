@@ -1,6 +1,3 @@
-// src/infrastructure/database/models/FeatureModel.ts
-// Enhanced with vote tracking and approval/rejection fields
-
 import {
   Table,
   Column,
@@ -44,6 +41,20 @@ export class FeatureModel extends Model {
   @Column(DataType.TEXT)
   declare description: string | null;
 
+  // ✅ ADDED - Business value
+  @Column(DataType.TEXT)
+  declare business_value: string | null;
+
+  // ✅ ADDED - Target users
+  @Column(DataType.TEXT)
+  declare target_users: string | null;
+
+  // ✅ ADDED - Requester
+  @ForeignKey(() => UserModel)
+  @AllowNull(false)
+  @Column(DataType.UUID)
+  declare requester_id: string;
+
   @Default('idea')
   @Column(
     DataType.ENUM(
@@ -83,27 +94,36 @@ export class FeatureModel extends Model {
 
   @Default([])
   @Column(DataType.ARRAY(DataType.UUID))
-  declare voted_by: string[]; // NEW: Track who voted
+  declare voted_by: string[];
 
   @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
-  declare approved_by: string | null; // NEW: Who approved
+  declare approved_by: string | null;
 
   @Column(DataType.DATE)
-  declare approved_at: Date | null; // NEW: When approved
+  declare approved_at: Date | null;
 
   @Column(DataType.TEXT)
-  declare approval_comment: string | null; // NEW: Approval comment
+  declare approval_comment: string | null;
 
   @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
-  declare rejected_by: string | null; // NEW: Who rejected
+  declare rejected_by: string | null;
 
   @Column(DataType.DATE)
-  declare rejected_at: Date | null; // NEW: When rejected
+  declare rejected_at: Date | null;
 
   @Column(DataType.TEXT)
-  declare rejection_reason: string | null; // NEW: Rejection reason
+  declare rejection_reason: string | null;
+
+  // ✅ ADDED - Attachments
+  @Default([])
+  @Column(DataType.ARRAY(DataType.TEXT))
+  declare attachments: string[];
+
+  // ✅ ADDED - Target version
+  @Column(DataType.STRING(50))
+  declare target_version: string | null;
 
   @Default([])
   @Column(DataType.ARRAY(DataType.TEXT))
@@ -124,6 +144,9 @@ export class FeatureModel extends Model {
 
   @BelongsTo(() => UserModel, 'assignee_id')
   declare assignee?: UserModel;
+
+  @BelongsTo(() => UserModel, 'requester_id')
+  declare requester?: UserModel; // ✅ ADDED
 
   @BelongsTo(() => UserModel, 'approved_by')
   declare approver?: UserModel;

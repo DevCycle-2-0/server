@@ -9,7 +9,7 @@ export enum FeatureStatus {
   TESTING = 'testing',
   RELEASE = 'release',
   LIVE = 'live',
-  REJECTED = 'rejected', // New status
+  REJECTED = 'rejected',
 }
 
 export enum Priority {
@@ -24,6 +24,9 @@ interface FeatureProps {
   productId: string;
   title: string;
   description?: string;
+  businessValue?: string; // ✅ ADDED
+  targetUsers?: string; // ✅ ADDED
+  requesterId: string; // ✅ ADDED (required)
   status: FeatureStatus;
   priority: Priority;
   assigneeId?: string;
@@ -31,13 +34,15 @@ interface FeatureProps {
   estimatedHours?: number;
   actualHours?: number;
   votes: number;
-  votedBy: string[]; // New: Track who voted
-  approvedBy?: string; // New: Who approved
-  approvedAt?: Date; // New: When approved
-  approvalComment?: string; // New: Approval comment
-  rejectedBy?: string; // New: Who rejected
-  rejectedAt?: Date; // New: When rejected
-  rejectionReason?: string; // New: Rejection reason
+  votedBy: string[];
+  approvedBy?: string;
+  approvedAt?: Date;
+  approvalComment?: string;
+  rejectedBy?: string;
+  rejectedAt?: Date;
+  rejectionReason?: string;
+  attachments: string[]; // ✅ ADDED
+  targetVersion?: string; // ✅ ADDED
   tags: string[];
   metadata: Record<string, any>;
   completedAt?: Date;
@@ -58,6 +63,7 @@ export class Feature extends BaseEntity<FeatureProps> {
     productId: string,
     title: string,
     description?: string,
+    requesterId?: string, // ✅ ADDED - defaults to system if not provided
     id?: string
   ): Feature {
     if (!title || title.trim().length < 5) {
@@ -69,10 +75,12 @@ export class Feature extends BaseEntity<FeatureProps> {
       productId,
       title: title.trim(),
       description: description?.trim(),
+      requesterId: requesterId || 'system', // ✅ ADDED
       status: FeatureStatus.IDEA,
       priority: Priority.MEDIUM,
       votes: 0,
-      votedBy: [], // Initialize empty array
+      votedBy: [],
+      attachments: [], // ✅ ADDED
       tags: [],
       metadata: {},
     });
@@ -84,6 +92,9 @@ export class Feature extends BaseEntity<FeatureProps> {
     productId: string,
     title: string,
     description: string | null,
+    businessValue: string | null, // ✅ ADDED
+    targetUsers: string | null, // ✅ ADDED
+    requesterId: string, // ✅ ADDED
     status: FeatureStatus,
     priority: Priority,
     assigneeId: string | null,
@@ -91,13 +102,15 @@ export class Feature extends BaseEntity<FeatureProps> {
     estimatedHours: number | null,
     actualHours: number | null,
     votes: number,
-    votedBy: string[], // New parameter
-    approvedBy: string | null, // New parameter
-    approvedAt: Date | null, // New parameter
-    approvalComment: string | null, // New parameter
-    rejectedBy: string | null, // New parameter
-    rejectedAt: Date | null, // New parameter
-    rejectionReason: string | null, // New parameter
+    votedBy: string[],
+    approvedBy: string | null,
+    approvedAt: Date | null,
+    approvalComment: string | null,
+    rejectedBy: string | null,
+    rejectedAt: Date | null,
+    rejectionReason: string | null,
+    attachments: string[], // ✅ ADDED
+    targetVersion: string | null, // ✅ ADDED
     tags: string[],
     metadata: Record<string, any>,
     completedAt: Date | null,
@@ -111,6 +124,9 @@ export class Feature extends BaseEntity<FeatureProps> {
         productId,
         title,
         description: description || undefined,
+        businessValue: businessValue || undefined, // ✅ ADDED
+        targetUsers: targetUsers || undefined, // ✅ ADDED
+        requesterId, // ✅ ADDED
         status,
         priority,
         assigneeId: assigneeId || undefined,
@@ -125,6 +141,8 @@ export class Feature extends BaseEntity<FeatureProps> {
         rejectedBy: rejectedBy || undefined,
         rejectedAt: rejectedAt || undefined,
         rejectionReason: rejectionReason || undefined,
+        attachments: attachments || [], // ✅ ADDED
+        targetVersion: targetVersion || undefined, // ✅ ADDED
         tags,
         metadata,
         completedAt: completedAt || undefined,
@@ -137,8 +155,11 @@ export class Feature extends BaseEntity<FeatureProps> {
   update(data: {
     title?: string;
     description?: string;
+    businessValue?: string; // ✅ ADDED
+    targetUsers?: string; // ✅ ADDED
     priority?: Priority;
     estimatedHours?: number;
+    targetVersion?: string; // ✅ ADDED
     tags?: string[];
   }): void {
     if (data.title) {
@@ -150,6 +171,16 @@ export class Feature extends BaseEntity<FeatureProps> {
 
     if (data.description !== undefined) {
       this.props.description = data.description.trim() || undefined;
+    }
+
+    // ✅ ADDED
+    if (data.businessValue !== undefined) {
+      this.props.businessValue = data.businessValue.trim() || undefined;
+    }
+
+    // ✅ ADDED
+    if (data.targetUsers !== undefined) {
+      this.props.targetUsers = data.targetUsers.trim() || undefined;
     }
 
     if (data.priority) {
@@ -164,6 +195,11 @@ export class Feature extends BaseEntity<FeatureProps> {
         throw new ValidationError('Estimated hours cannot be negative');
       }
       this.props.estimatedHours = data.estimatedHours;
+    }
+
+    // ✅ ADDED
+    if (data.targetVersion !== undefined) {
+      this.props.targetVersion = data.targetVersion;
     }
 
     if (data.tags) {
@@ -207,10 +243,6 @@ export class Feature extends BaseEntity<FeatureProps> {
     this.touch();
   }
 
-  /**
-   * Vote for feature
-   * Updated to track who voted
-   */
   vote(userId: string): void {
     if (this.props.votedBy.includes(userId)) {
       throw new ValidationError('User already voted for this feature');
@@ -220,10 +252,6 @@ export class Feature extends BaseEntity<FeatureProps> {
     this.touch();
   }
 
-  /**
-   * Remove vote from feature
-   * New method for unvoting
-   */
   unvote(userId: string): void {
     if (!this.props.votedBy.includes(userId)) {
       throw new ValidationError('User has not voted for this feature');
@@ -235,10 +263,6 @@ export class Feature extends BaseEntity<FeatureProps> {
     }
   }
 
-  /**
-   * Approve feature
-   * Updated to track who approved and optional comment
-   */
   approve(userId?: string, comment?: string): void {
     if (this.props.status !== FeatureStatus.REVIEW) {
       throw new ValidationError('Only features in review can be approved');
@@ -250,10 +274,6 @@ export class Feature extends BaseEntity<FeatureProps> {
     this.touch();
   }
 
-  /**
-   * Reject feature
-   * New method for rejection
-   */
   reject(userId: string, reason: string): void {
     if (!reason || reason.trim().length < 10) {
       throw new ValidationError('Rejection reason must be at least 10 characters');
@@ -273,6 +293,21 @@ export class Feature extends BaseEntity<FeatureProps> {
     this.touch();
   }
 
+  // ✅ ADDED - Attachment management
+  addAttachment(url: string): void {
+    if (!url || !url.trim()) {
+      throw new ValidationError('Attachment URL cannot be empty');
+    }
+    this.props.attachments.push(url.trim());
+    this.touch();
+  }
+
+  // ✅ ADDED
+  removeAttachment(url: string): void {
+    this.props.attachments = this.props.attachments.filter((a) => a !== url);
+    this.touch();
+  }
+
   // Getters
   get workspaceId(): string {
     return this.props.workspaceId;
@@ -285,6 +320,18 @@ export class Feature extends BaseEntity<FeatureProps> {
   }
   get description(): string | undefined {
     return this.props.description;
+  }
+  // ✅ ADDED
+  get businessValue(): string | undefined {
+    return this.props.businessValue;
+  }
+  // ✅ ADDED
+  get targetUsers(): string | undefined {
+    return this.props.targetUsers;
+  }
+  // ✅ ADDED
+  get requesterId(): string {
+    return this.props.requesterId;
   }
   get status(): FeatureStatus {
     return this.props.status;
@@ -308,25 +355,33 @@ export class Feature extends BaseEntity<FeatureProps> {
     return this.props.votes;
   }
   get votedBy(): string[] {
-    return [...this.props.votedBy]; // New getter
+    return [...this.props.votedBy];
   }
   get approvedBy(): string | undefined {
-    return this.props.approvedBy; // New getter
+    return this.props.approvedBy;
   }
   get approvedAt(): Date | undefined {
-    return this.props.approvedAt; // New getter
+    return this.props.approvedAt;
   }
   get approvalComment(): string | undefined {
-    return this.props.approvalComment; // New getter
+    return this.props.approvalComment;
   }
   get rejectedBy(): string | undefined {
-    return this.props.rejectedBy; // New getter
+    return this.props.rejectedBy;
   }
   get rejectedAt(): Date | undefined {
-    return this.props.rejectedAt; // New getter
+    return this.props.rejectedAt;
   }
   get rejectionReason(): string | undefined {
-    return this.props.rejectionReason; // New getter
+    return this.props.rejectionReason;
+  }
+  // ✅ ADDED
+  get attachments(): string[] {
+    return [...this.props.attachments];
+  }
+  // ✅ ADDED
+  get targetVersion(): string | undefined {
+    return this.props.targetVersion;
   }
   get tags(): string[] {
     return [...this.props.tags];
