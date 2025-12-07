@@ -15,6 +15,7 @@ import settingsRoutes from './settings.routes';
 import onboardingRoutes from './onboarding.routes';
 import timeLogsRoutes from './time-logs.routes';
 import commentsRoutes from './comments.routes';
+import billingRoutes from './billing.routes'; // NEW
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router.get('/health', (req, res) => {
       services: {
         database: 'connected',
         redis: process.env.REDIS_ENABLED === 'true' ? 'enabled' : 'disabled',
+        stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'not configured',
       },
     },
   });
@@ -39,7 +41,7 @@ router.get('/health', (req, res) => {
 // API routes
 router.use('/auth', authRoutes);
 router.use('/workspaces', workspacesRoutes);
-router.use('/workspaces', workspaceInvitesRoutes); // Handles /workspaces/:id/invites
+router.use('/workspaces', workspaceInvitesRoutes);
 router.use('/products', productsRoutes);
 router.use('/features', featuresRoutes);
 router.use('/sprints', sprintsRoutes);
@@ -50,8 +52,9 @@ router.use('/releases', releasesRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/settings', settingsRoutes);
-router.use('/users', onboardingRoutes); // Handles /users/me/onboarding
-router.use('/', timeLogsRoutes); // Handles /tasks/:id/time-logs and /users/:id/time-logs
-router.use('/', commentsRoutes); // Handles /:entityType/:entityId/comments
+router.use('/billing', billingRoutes);
+router.use('/users', onboardingRoutes);
+router.use('/', timeLogsRoutes);
+router.use('/', commentsRoutes);
 
 export default router;
