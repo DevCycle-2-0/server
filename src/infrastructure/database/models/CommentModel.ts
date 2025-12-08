@@ -8,13 +8,14 @@ import {
   AllowNull,
   ForeignKey,
   BelongsTo,
+  HasMany,
   CreatedAt,
   UpdatedAt,
-} from "sequelize-typescript";
-import { WorkspaceModel } from "./WorkspaceModel";
-import { UserModel } from "./UserModel";
+} from 'sequelize-typescript';
+import { WorkspaceModel } from './WorkspaceModel';
+import { UserModel } from './UserModel';
 
-@Table({ tableName: "comments", timestamps: true })
+@Table({ tableName: 'comments', timestamps: true })
 export class CommentModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
@@ -64,12 +65,15 @@ export class CommentModel extends Model {
   @UpdatedAt
   updatedAt!: Date;
 
-  @BelongsTo(() => WorkspaceModel, "workspaceId")
+  @BelongsTo(() => WorkspaceModel, 'workspaceId')
   workspace!: WorkspaceModel;
 
-  @BelongsTo(() => UserModel, "authorId")
+  @BelongsTo(() => UserModel, 'authorId')
   author!: UserModel;
 
-  @BelongsTo(() => CommentModel, "parentId")
+  @BelongsTo(() => CommentModel, 'parentId')
   parent?: CommentModel;
+
+  @HasMany(() => CommentModel, 'parentId')
+  replies!: CommentModel[];
 }

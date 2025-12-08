@@ -1,3 +1,4 @@
+// src/infrastructure/database/models/FeatureModel.ts
 import {
   Table,
   Column,
@@ -16,7 +17,7 @@ import { WorkspaceModel } from './WorkspaceModel';
 import { ProductModel } from './ProductModel';
 import { SprintModel } from './SprintModel';
 import { UserModel } from './UserModel';
-import { TaskModel } from './';
+import { TaskModel } from './TaskModel';
 import { FeatureStage, PriorityLevel, ItemStatus } from '@shared/types';
 
 @Table({ tableName: 'features', timestamps: true })

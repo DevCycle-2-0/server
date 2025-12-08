@@ -1,16 +1,16 @@
 import { BugSeverity, PriorityLevel } from '@shared/types';
 
-export interface CreateBugDto {
-  title: string;
+export interface UpdateBugDto {
+  title?: string;
   description?: string;
   stepsToReproduce?: string;
   expectedBehavior?: string;
   actualBehavior?: string;
   environment?: Record<string, any>;
-  severity: BugSeverity;
+  severity?: BugSeverity;
   priority?: PriorityLevel;
-  productId?: string;
-  featureId?: string;
+  sprintId?: string | null;
+  assigneeId?: string | null;
   tags?: string[];
   attachments?: any[];
 }
