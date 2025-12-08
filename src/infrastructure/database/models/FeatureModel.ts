@@ -11,18 +11,19 @@ import {
   HasMany,
   CreatedAt,
   UpdatedAt,
-} from "sequelize-typescript";
-import { WorkspaceModel } from "./WorkspaceModel";
-import { ProductModel } from "./ProductModel";
-import { SprintModel } from "./SprintModel";
-import { UserModel } from "./UserModel";
-import { TaskModel } from "./TaskModel";
-import { FeatureStage, PriorityLevel, ItemStatus } from "@shared/types";
+} from 'sequelize-typescript';
+import { WorkspaceModel } from './WorkspaceModel';
+import { ProductModel } from './ProductModel';
+import { SprintModel } from './SprintModel';
+import { UserModel } from './UserModel';
+import { TaskModel } from './';
+import { FeatureStage, PriorityLevel, ItemStatus } from '@shared/types';
 
-@Table({ tableName: "features", timestamps: true })
+@Table({ tableName: 'features', timestamps: true })
 export class FeatureModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
+  a;
   @Column(DataType.UUID)
   id!: string;
 
@@ -100,21 +101,21 @@ export class FeatureModel extends Model {
   @UpdatedAt
   updatedAt!: Date;
 
-  @BelongsTo(() => WorkspaceModel, "workspaceId")
+  @BelongsTo(() => WorkspaceModel, 'workspaceId')
   workspace!: WorkspaceModel;
 
-  @BelongsTo(() => ProductModel, "productId")
+  @BelongsTo(() => ProductModel, 'productId')
   product?: ProductModel;
 
-  @BelongsTo(() => SprintModel, "sprintId")
+  @BelongsTo(() => SprintModel, 'sprintId')
   sprint?: SprintModel;
 
-  @BelongsTo(() => UserModel, "assigneeId")
+  @BelongsTo(() => UserModel, 'assigneeId')
   assignee?: UserModel;
 
-  @BelongsTo(() => UserModel, "reporterId")
+  @BelongsTo(() => UserModel, 'reporterId')
   reporter?: UserModel;
 
-  @HasMany(() => TaskModel, "featureId")
+  @HasMany(() => TaskModel, 'featureId')
   tasks!: TaskModel[];
 }
