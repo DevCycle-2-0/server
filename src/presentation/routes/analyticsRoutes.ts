@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { EnhancedAnalyticsController } from '../controllers/AnalyticsController';
 import { authenticate } from '../middlewares/authMiddleware';
+import { validate } from '../middlewares/validator';
+import { exportDataSchema } from '@application/validators/AnalyticsValidator';
 
 const router = Router();
 const analyticsController = new EnhancedAnalyticsController();
@@ -18,6 +20,10 @@ router.get(
   '/:workspaceId/analytics/releases',
   analyticsController.getReleaseMetrics
 );
-router.post('/:workspaceId/analytics/export', analyticsController.exportData);
+router.post(
+  '/:workspaceId/analytics/export',
+  validate(exportDataSchema),
+  analyticsController.exportData
+);
 
 export default router;
