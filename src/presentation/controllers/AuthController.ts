@@ -47,14 +47,14 @@ export class AuthController {
       // Generate tokens
       const accessToken = jwt.sign(
         { userId: user.id, email: user.email },
-        config.jwt.secret,
-        { expiresIn: config.jwt.expiresIn }
+        config.jwt.secret as string,
+        { expiresIn: config.jwt.expiresIn as string }
       );
 
       const refreshToken = jwt.sign(
         { userId: user.id },
-        config.jwt.refreshSecret,
-        { expiresIn: config.jwt.refreshExpiresIn }
+        config.jwt.refreshSecret as string,
+        { expiresIn: config.jwt.refreshExpiresIn as string }
       );
 
       res.status(201).json(
@@ -110,14 +110,14 @@ export class AuthController {
       // Generate tokens
       const accessToken = jwt.sign(
         { userId: user.id, email: user.email },
-        config.jwt.secret,
-        { expiresIn: config.jwt.expiresIn }
+        config.jwt.secret as string,
+        { expiresIn: config.jwt.expiresIn as string }
       );
 
       const refreshToken = jwt.sign(
         { userId: user.id },
-        config.jwt.refreshSecret,
-        { expiresIn: config.jwt.refreshExpiresIn }
+        config.jwt.refreshSecret as string,
+        { expiresIn: config.jwt.refreshExpiresIn as string }
       );
 
       res.json(
@@ -164,7 +164,7 @@ export class AuthController {
 
       const decoded = jwt.verify(
         refresh_token,
-        config.jwt.refreshSecret
+        config.jwt.refreshSecret as string
       ) as any;
 
       const user = await UserModel.findByPk(decoded.userId);
@@ -175,14 +175,14 @@ export class AuthController {
       // Generate new tokens
       const accessToken = jwt.sign(
         { userId: user.id, email: user.email },
-        config.jwt.secret,
-        { expiresIn: config.jwt.expiresIn }
+        config.jwt.secret as string,
+        { expiresIn: config.jwt.expiresIn as string }
       );
 
       const newRefreshToken = jwt.sign(
         { userId: user.id },
-        config.jwt.refreshSecret,
-        { expiresIn: config.jwt.refreshExpiresIn }
+        config.jwt.refreshSecret as string,
+        { expiresIn: config.jwt.refreshExpiresIn as string }
       );
 
       res.json(

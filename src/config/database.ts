@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
 import { config } from './env';
-import path from 'path';
 
 // Import all models directly
 import { UserModel } from '@infrastructure/database/models/UserModel';
