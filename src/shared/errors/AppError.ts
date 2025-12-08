@@ -1,42 +1,36 @@
 export class AppError extends Error {
   constructor(
-    public message: string,
-    public statusCode: number = 500,
-    public code?: string,
-    public details?: any
+    public statusCode: number,
+    public code: string,
+    message: string,
+    public details?: Record<string, string[]>
   ) {
     super(message);
-    this.name = this.constructor.name;
+    this.name = "AppError";
     Error.captureStackTrace(this, this.constructor);
   }
-}
 
-export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
-    super(message, 400, "VALIDATION_ERROR", details);
+  static badRequest(message: string, details?: Record<string, string[]>) {
+    return new AppError(400, "VALIDATION_ERROR", message, details);
   }
-}
 
-export class NotFoundError extends AppError {
-  constructor(message: string = "Resource not found") {
-    super(message, 404, "NOT_FOUND");
+  static unauthorized(message = "Unauthorized") {
+    return new AppError(401, "AUTH_UNAUTHORIZED", message);
   }
-}
 
-export class UnauthorizedError extends AppError {
-  constructor(message: string = "Unauthorized") {
-    super(message, 401, "UNAUTHORIZED");
+  static forbidden(message = "Forbidden") {
+    return new AppError(403, "AUTH_FORBIDDEN", message);
   }
-}
 
-export class ForbiddenError extends AppError {
-  constructor(message: string = "Forbidden") {
-    super(message, 403, "FORBIDDEN");
+  static notFound(message = "Resource not found") {
+    return new AppError(404, "RESOURCE_NOT_FOUND", message);
   }
-}
 
-export class ConflictError extends AppError {
-  constructor(message: string, code?: string) {
-    super(message, 409, code || "CONFLICT");
+  static conflict(message: string) {
+    return new AppError(409, "DUPLICATE_RESOURCE", message);
+  }
+
+  static internal(message = "Internal server error") {
+    return new AppError(500, "INTERNAL_ERROR", message);
   }
 }

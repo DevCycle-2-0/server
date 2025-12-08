@@ -10,20 +10,18 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
+    "moduleResolution": "node",
     "baseUrl": "./src",
     "paths": {
       "@domain/*": ["domain/*"],
-      "@infrastructure/*": ["infrastructure/*"],
       "@application/*": ["application/*"],
-      "@presentation/*": ["presentation/*"],
-      "@shared/*": ["shared/*"],
-      "@config/*": ["config/*"]
+      "@infrastructure/*": ["infrastructure/*"],
+      "@interfaces/*": ["interfaces/*"],
+      "@shared/*": ["shared/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "exclude": ["node_modules", "dist"]
 }

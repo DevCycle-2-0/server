@@ -1,13 +1,9 @@
-import { Product } from "../entities/Product";
+import { Product } from "../entities/Product.entity";
 
 export interface IProductRepository {
-  create(product: Product): Promise<Product>;
+  create(data: Partial<Product>): Promise<Product>;
   findById(id: string): Promise<Product | null>;
-  findByWorkspaceId(
-    workspaceId: string,
-    page: number,
-    limit: number
-  ): Promise<{ products: Product[]; total: number }>;
+  findAll(filters: any): Promise<{ rows: Product[]; count: number }>;
   update(id: string, data: Partial<Product>): Promise<Product>;
   delete(id: string): Promise<void>;
 }

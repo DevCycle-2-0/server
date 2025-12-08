@@ -1,14 +1,11 @@
-import { Feature } from "../entities/Feature";
+import { Feature } from "../entities/Feature.entity";
 
 export interface IFeatureRepository {
-  create(feature: Feature): Promise<Feature>;
+  create(data: Partial<Feature>): Promise<Feature>;
   findById(id: string): Promise<Feature | null>;
-  findByWorkspaceId(
-    workspaceId: string,
-    filters: any,
-    page: number,
-    limit: number
-  ): Promise<{ features: Feature[]; total: number }>;
+  findAll(filters: any): Promise<{ rows: Feature[]; count: number }>;
   update(id: string, data: Partial<Feature>): Promise<Feature>;
   delete(id: string): Promise<void>;
+  vote(id: string, userId: string): Promise<Feature>;
+  unvote(id: string, userId: string): Promise<Feature>;
 }
