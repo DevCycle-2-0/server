@@ -23,7 +23,6 @@ import { FeatureStage, PriorityLevel, ItemStatus } from '@shared/types';
 export class FeatureModel extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)
-  a;
   @Column(DataType.UUID)
   id!: string;
 
