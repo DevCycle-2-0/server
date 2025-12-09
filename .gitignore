@@ -1,39 +1,10 @@
-# Environment
+node_modules/
+dist/
+uploads/
 .env
 .env.local
-.env.*.local
-
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Build
-dist/
-build/
-*.tsbuildinfo
-
-# Logs
-logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# IDE
+.DS_Store
+coverage/
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Testing
-coverage/
-.nyc_output/
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
