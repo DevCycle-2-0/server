@@ -1,7 +1,8 @@
 import { UseCase } from "@shared/application/UseCase";
 import { Result } from "@shared/application/Result";
 import { JwtService } from "@modules/auth/infrastructure/security/JwtService";
-import { RefreshTokenRequest, TokensDto } from "../dtos/AuthRequestDtos";
+import { RefreshTokenRequest } from "../dtos/AuthRequestDtos";
+import { TokensDto } from "../dtos/AuthResponseDtos";
 
 export class RefreshTokenUseCase
   implements UseCase<RefreshTokenRequest, Result<TokensDto>>

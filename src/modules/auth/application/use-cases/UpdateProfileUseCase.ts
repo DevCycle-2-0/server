@@ -1,7 +1,8 @@
 import { UseCase } from "@shared/application/UseCase";
 import { Result } from "@shared/application/Result";
 import { IUserRepository } from "@modules/auth/domain/repositories/IUserRepository";
-import { UpdateProfileRequest, AuthUserDto } from "../dtos/AuthRequestDtos";
+import { UpdateProfileRequest } from "../dtos/AuthRequestDtos";
+import { AuthUserDto } from "../dtos/AuthResponseDtos";
 
 interface UpdateProfileInput {
   userId: string;

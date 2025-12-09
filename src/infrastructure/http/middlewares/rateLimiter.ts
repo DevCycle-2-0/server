@@ -1,7 +1,8 @@
 import rateLimit from "express-rate-limit";
+import type { RequestHandler } from "express";
 import { config } from "@config/env";
-
-export const rateLimiter = rateLimit({
+import { ApiResponse } from "../responses/ApiResponse";
+export const rateLimiter: RequestHandler = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.max,
   standardHeaders: true,

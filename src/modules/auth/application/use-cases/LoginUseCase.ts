@@ -4,7 +4,8 @@ import { IUserRepository } from "@modules/auth/domain/repositories/IUserReposito
 import { Email } from "@modules/auth/domain/value-objects/Email";
 import { PasswordHasher } from "@modules/auth/infrastructure/security/PasswordHasher";
 import { JwtService } from "@modules/auth/infrastructure/security/JwtService";
-import { LoginRequest, AuthResponseDto } from "../dtos/AuthRequestDtos";
+import { LoginRequest } from "../dtos/AuthRequestDtos";
+import { AuthResponseDto } from "../dtos/AuthResponseDtos";
 
 export class LoginUseCase
   implements UseCase<LoginRequest, Result<AuthResponseDto>>
