@@ -1,4 +1,3 @@
-// src/infrastructure/database/sequelize.ts - Complete with all models
 import { Sequelize } from "sequelize-typescript";
 import { config } from "@config/env";
 import { UserModel } from "@modules/auth/infrastructure/persistence/models/UserModel";
@@ -10,6 +9,8 @@ import { TimeLogModel } from "@modules/tasks/infrastructure/persistence/models/T
 import { CommentModel } from "@modules/tasks/infrastructure/persistence/models/CommentModel";
 import { BugModel } from "@modules/bugs/infrastructure/persistence/models/BugModel";
 import { SprintModel } from "@modules/sprints/infrastructure/persistence/models/SprintModel";
+import { ReleaseModel } from "@modules/releases/infrastructure/persistence/models/ReleaseModel";
+import { TeamMemberModel } from "@modules/team/infrastructure/persistence/models/TeamMemberModel";
 
 export const sequelize = new Sequelize({
   dialect: "postgres",
@@ -29,6 +30,8 @@ export const sequelize = new Sequelize({
     CommentModel,
     BugModel,
     SprintModel,
+    ReleaseModel,
+    TeamMemberModel,
   ],
   pool: {
     max: 10,

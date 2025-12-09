@@ -1,4 +1,4 @@
-// src/app.ts - Complete with all routes
+// src/app.ts - Complete with all routes including Releases and Team
 import express, { Application } from "express";
 import helmet from "helmet";
 import { corsMiddleware } from "@infrastructure/http/middlewares/cors";
@@ -14,6 +14,8 @@ import featureRoutes from "@modules/features/presentation/routes/feature.routes"
 import taskRoutes from "@modules/tasks/presentation/routes/task.routes";
 import bugRoutes from "@modules/bugs/presentation/routes/bug.routes";
 import sprintRoutes from "@modules/sprints/presentation/routes/sprint.routes";
+import releaseRoutes from "@modules/releases/presentation/routes/release.routes";
+import teamRoutes from "@modules/team/presentation/routes/team.routes";
 
 export function createApp(): Application {
   const app = express();
@@ -50,6 +52,8 @@ export function createApp(): Application {
   app.use(`${apiPrefix}/tasks`, taskRoutes);
   app.use(`${apiPrefix}/bugs`, bugRoutes);
   app.use(`${apiPrefix}/sprints`, sprintRoutes);
+  app.use(`${apiPrefix}/releases`, releaseRoutes);
+  app.use(`${apiPrefix}/team`, teamRoutes);
 
   // 404 handler
   app.use("*", (req, res) => {
