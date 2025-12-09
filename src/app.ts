@@ -11,6 +11,7 @@ import { config } from "@config/env";
 import authRoutes from "@modules/auth/presentation/routes/auth.routes";
 import productRoutes from "@modules/products/presentation/routes/product.routes";
 import featureRoutes from "@modules/features/presentation/routes/feature.routes";
+import taskRoutes from "@modules/tasks/presentation/routes/task.routes";
 
 export function createApp(): Application {
   const app = express();
@@ -44,6 +45,7 @@ export function createApp(): Application {
   app.use(`${apiPrefix}/auth`, authRoutes);
   app.use(`${apiPrefix}/products`, productRoutes);
   app.use(`${apiPrefix}/features`, featureRoutes);
+  app.use(`${apiPrefix}/tasks`, taskRoutes);
 
   // 404 handler
   app.use("*", (req, res) => {
