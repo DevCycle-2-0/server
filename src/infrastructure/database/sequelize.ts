@@ -1,8 +1,10 @@
+// src/infrastructure/database/sequelize.ts
 import { Sequelize } from "sequelize-typescript";
 import { config } from "@config/env";
 import { UserModel } from "@modules/auth/infrastructure/persistence/models/UserModel";
 import { WorkspaceModel } from "@modules/auth/infrastructure/persistence/models/WorkspaceModel";
 import { ProductModel } from "@modules/products/infrastructure/persistence/models/ProductModel";
+import { FeatureModel } from "@modules/features/infrastructure/persistence/models/FeatureModel";
 
 export const sequelize = new Sequelize({
   dialect: "postgres",
@@ -12,7 +14,7 @@ export const sequelize = new Sequelize({
   username: config.database.username,
   password: config.database.password,
   logging: config.database.logging ? console.log : false,
-  models: [UserModel, WorkspaceModel, ProductModel],
+  models: [UserModel, WorkspaceModel, ProductModel, FeatureModel],
   pool: {
     max: 10,
     min: 0,
