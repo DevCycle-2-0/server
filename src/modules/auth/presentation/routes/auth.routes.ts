@@ -14,6 +14,7 @@ const authController = new AuthController();
 
 // Public routes
 router.post("/login", loginValidator, validateRequest, authController.login);
+console.log("hello-11111");
 router.post("/signup", signupValidator, validateRequest, authController.signup);
 router.post("/refresh", authController.refreshToken);
 router.post("/password/reset-request", authController.requestPasswordReset);

@@ -39,6 +39,7 @@ export function createApp(): Application {
 
   // API Routes
   const apiPrefix = config.app.apiPrefix;
+
   app.use(`${apiPrefix}/auth`, authRoutes);
 
   // 404 handler
