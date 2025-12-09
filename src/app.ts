@@ -1,5 +1,4 @@
-// placeholder - Express app setup
-
+// src/app.ts - Updated with product routes
 import express, { Application } from "express";
 import helmet from "helmet";
 import { corsMiddleware } from "@infrastructure/http/middlewares/cors";
@@ -10,6 +9,7 @@ import { config } from "@config/env";
 
 // Routes
 import authRoutes from "@modules/auth/presentation/routes/auth.routes";
+import productRoutes from "@modules/products/presentation/routes/product.routes";
 
 export function createApp(): Application {
   const app = express();
@@ -41,6 +41,7 @@ export function createApp(): Application {
   const apiPrefix = config.app.apiPrefix;
 
   app.use(`${apiPrefix}/auth`, authRoutes);
+  app.use(`${apiPrefix}/products`, productRoutes);
 
   // 404 handler
   app.use("*", (req, res) => {

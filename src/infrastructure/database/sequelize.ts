@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import { config } from "@config/env";
 import { UserModel } from "@modules/auth/infrastructure/persistence/models/UserModel";
 import { WorkspaceModel } from "@modules/auth/infrastructure/persistence/models/WorkspaceModel";
+import { ProductModel } from "@modules/products/infrastructure/persistence/models/ProductModel";
 
 export const sequelize = new Sequelize({
   dialect: "postgres",
@@ -11,7 +12,7 @@ export const sequelize = new Sequelize({
   username: config.database.username,
   password: config.database.password,
   logging: config.database.logging ? console.log : false,
-  models: [UserModel, WorkspaceModel],
+  models: [UserModel, WorkspaceModel, ProductModel],
   pool: {
     max: 10,
     min: 0,
