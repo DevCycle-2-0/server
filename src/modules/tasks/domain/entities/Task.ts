@@ -269,6 +269,18 @@ export class Task extends AggregateRoot<TaskProps> {
     }
   }
 
+  public addToSprint(sprintId: string, sprintName: string): void {
+    this.props.sprintId = sprintId;
+    this.props.sprintName = sprintName;
+    this.props.updatedAt = new Date();
+  }
+
+  public removeFromSprint(): void {
+    this.props.sprintId = undefined;
+    this.props.sprintName = undefined;
+    this.props.updatedAt = new Date();
+  }
+
   public removeDependency(taskId: string): boolean {
     const index = this.props.dependencies.findIndex(
       (dep) => dep.taskId === taskId
