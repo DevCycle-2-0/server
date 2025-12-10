@@ -1,4 +1,4 @@
-// src/app.ts - Complete with all routes including Dashboard
+// src/app.ts - Updated with CORS management
 import express, { Application } from "express";
 import helmet from "helmet";
 import { corsMiddleware } from "@infrastructure/http/middlewares/cors";
@@ -20,6 +20,7 @@ import analyticsRoutes from "@modules/analytics/presentation/routes/analytics.ro
 import settingsRoutes from "@modules/settings/presentation/routes/settings.routes";
 import dashboardRoutes from "@modules/dashboard/presentation/routes/dashboard.routes";
 import billingRoutes from "@modules/billing/presentation/routes/billing.routes";
+import corsRoutes from "@infrastructure/http/routes/cors.routes";
 
 export function createApp(): Application {
   const app = express();
@@ -62,6 +63,9 @@ export function createApp(): Application {
   app.use(`${apiPrefix}/users`, settingsRoutes);
   app.use(`${apiPrefix}/dashboard`, dashboardRoutes);
   app.use(`${apiPrefix}/billing`, billingRoutes);
+
+  // CORS management routes (admin only in production)
+  app.use(`${apiPrefix}/admin/cors`, corsRoutes);
 
   // 404 handler
   app.use("*", (req, res) => {

@@ -24,8 +24,12 @@ export const config = {
     passwordMinLength: 8,
   },
   cors: {
+    enabled: process.env.CORS_ENABLED !== "false",
     origin: process.env.CORS_ORIGIN || "http://localhost:8080",
     credentials: true,
+    allowedOrigins: process.env.CORS_ALLOWED_ORIGINS
+      ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+      : ["http://localhost:8080"],
   },
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
