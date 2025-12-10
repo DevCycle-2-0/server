@@ -33,7 +33,7 @@ export class SprintRepository
         productName: model.productName,
         startDate: model.startDate,
         endDate: model.endDate,
-        capacity: Number(model.capacity),
+        capacity: Number(model.capacity), // Convert from DECIMAL
         workspaceId: model.workspaceId,
         status: model.status as SprintStatus,
         taskIds: model.taskIds,
@@ -65,7 +65,7 @@ export class SprintRepository
       endDate: domain.endDate,
       taskIds: domain.taskIds,
       bugIds: domain.bugIds,
-      capacity: domain.capacity,
+      capacity: domain.capacity, // ⚠️ FIX: This was missing!
       velocity: domain.velocity,
       retrospective: domain.retrospective as any,
       workspaceId: domain.workspaceId,

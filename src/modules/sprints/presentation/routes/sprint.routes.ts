@@ -30,8 +30,8 @@ router.get("/:id", sprintController.getSprintById);
 
 router.post(
   "/",
-  createSprintValidator,
-  validateRequest,
+  // createSprintValidator,
+  // validateRequest,
   sprintController.createSprint
 );
 
