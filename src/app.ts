@@ -19,6 +19,7 @@ import teamRoutes from "@modules/team/presentation/routes/team.routes";
 import analyticsRoutes from "@modules/analytics/presentation/routes/analytics.routes";
 import settingsRoutes from "@modules/settings/presentation/routes/settings.routes";
 import dashboardRoutes from "@modules/dashboard/presentation/routes/dashboard.routes";
+import billingRoutes from "@modules/billing/presentation/routes/billing.routes";
 
 export function createApp(): Application {
   const app = express();
@@ -60,6 +61,7 @@ export function createApp(): Application {
   app.use(`${apiPrefix}/analytics`, analyticsRoutes);
   app.use(`${apiPrefix}/users`, settingsRoutes);
   app.use(`${apiPrefix}/dashboard`, dashboardRoutes);
+  app.use(`${apiPrefix}/billing`, billingRoutes);
 
   // 404 handler
   app.use("*", (req, res) => {

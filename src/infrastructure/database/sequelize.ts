@@ -13,6 +13,9 @@ import { ReleaseModel } from "@modules/releases/infrastructure/persistence/model
 import { TeamMemberModel } from "@modules/team/infrastructure/persistence/models/TeamMemberModel";
 import { UserSettingsModel } from "@modules/settings/infrastructure/persistence/models/UserSettingsModel";
 import { ActivityModel } from "@modules/dashboard/infrastructure/persistence/models/ActivityModel";
+import { SubscriptionModel } from "@modules/billing/infrastructure/persistence/models/SubscriptionModel";
+import { InvoiceModel } from "@modules/billing/infrastructure/persistence/models/InvoiceModel";
+import { PaymentMethodModel } from "@modules/billing/infrastructure/persistence/models/PaymentMethodModel";
 
 export const sequelize = new Sequelize({
   dialect: "postgres",
@@ -36,6 +39,9 @@ export const sequelize = new Sequelize({
     TeamMemberModel,
     UserSettingsModel,
     ActivityModel,
+    SubscriptionModel,
+    InvoiceModel,
+    PaymentMethodModel,
   ],
   pool: {
     max: 10,
