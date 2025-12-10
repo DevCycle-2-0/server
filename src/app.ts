@@ -1,4 +1,4 @@
-// src/app.ts - Complete with all routes including Settings
+// src/app.ts - Complete with all routes including Dashboard
 import express, { Application } from "express";
 import helmet from "helmet";
 import { corsMiddleware } from "@infrastructure/http/middlewares/cors";
@@ -18,6 +18,7 @@ import releaseRoutes from "@modules/releases/presentation/routes/release.routes"
 import teamRoutes from "@modules/team/presentation/routes/team.routes";
 import analyticsRoutes from "@modules/analytics/presentation/routes/analytics.routes";
 import settingsRoutes from "@modules/settings/presentation/routes/settings.routes";
+import dashboardRoutes from "@modules/dashboard/presentation/routes/dashboard.routes";
 
 export function createApp(): Application {
   const app = express();
@@ -58,6 +59,7 @@ export function createApp(): Application {
   app.use(`${apiPrefix}/team`, teamRoutes);
   app.use(`${apiPrefix}/analytics`, analyticsRoutes);
   app.use(`${apiPrefix}/users`, settingsRoutes);
+  app.use(`${apiPrefix}/dashboard`, dashboardRoutes);
 
   // 404 handler
   app.use("*", (req, res) => {
