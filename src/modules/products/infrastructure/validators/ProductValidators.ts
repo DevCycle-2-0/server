@@ -12,39 +12,54 @@ export const createProductValidator = [
     .withMessage("Name must be between 2 and 100 characters")
     .trim(),
 
-  // Description (optional)
+  // Description
   body("description")
-    .optional()
     .isString()
     .isLength({ max: 1000 })
     .withMessage("Description must be less than 1000 characters")
     .trim(),
 
-  // Platform (single string)
-  body("platform")
-    .isString()
-    .withMessage("Platform is required")
-    .isIn(validPlatforms)
-    .withMessage(`Platform must be one of: ${validPlatforms.join(", ")}`),
+  // Support both singular 'platform' and plural 'platforms'
+  body().custom((value) => {
+    // Must have either platform or platforms
+    if (!value.platform && !value.platforms) {
+      throw new Error("Either 'platform' or 'platforms' is required");
+    }
 
-  // Version (semantic version OR simple string)
-  body("version")
-    .isString()
-    .withMessage("Version is required")
-    .matches(/^\d+\.\d+\.\d+$/)
-    .withMessage("Version must follow semantic format: x.y.z (example: 1.0.0)"),
+    // If platform (singular), validate it's a valid platform
+    if (value.platform) {
+      if (typeof value.platform !== "string") {
+        throw new Error("Platform must be a string");
+      }
+      if (!validPlatforms.includes(value.platform)) {
+        throw new Error(
+          `Platform must be one of: ${validPlatforms.join(", ")}`
+        );
+      }
+    }
 
-  // Status
-  body("status")
-    .isString()
-    .isIn(validStatuses)
-    .withMessage(`Status must be one of: ${validStatuses.join(", ")}`),
+    // If platforms (plural), validate it's an array of valid platforms
+    if (value.platforms) {
+      if (!Array.isArray(value.platforms)) {
+        throw new Error("Platforms must be an array");
+      }
+      if (value.platforms.length === 0) {
+        throw new Error("At least one platform is required");
+      }
+      const invalid = value.platforms.filter(
+        (p: any) => !validPlatforms.includes(p)
+      );
+      if (invalid.length > 0) {
+        throw new Error(
+          `Invalid platforms: ${invalid.join(
+            ", "
+          )}. Must be one of: ${validPlatforms.join(", ")}`
+        );
+      }
+    }
 
-  // Team Members Array
-  body("teamMembers")
-    .optional()
-    .isArray()
-    .withMessage("Team members must be an array"),
+    return true;
+  }),
 ];
 
 export const updateProductValidator = [

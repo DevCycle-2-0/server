@@ -75,6 +75,7 @@ export class ApiResponse {
         hasPrev: page > 1,
       },
     };
+
     return res.status(200).json(response);
   }
 

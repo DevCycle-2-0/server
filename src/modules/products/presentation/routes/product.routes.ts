@@ -27,8 +27,8 @@ router.get("/:id", productController.getProductById);
 
 router.post(
   "/",
-  // createProductValidator,
-  // validateRequest,
+  createProductValidator,
+  validateRequest,
   productController.createProduct
 );
 

@@ -118,11 +118,19 @@ export class ProductController {
       }
 
       const userName = "User"; // Placeholder
+
+      // Convert single platform to array
+      const platforms = Array.isArray(req.body.platforms)
+        ? req.body.platforms
+        : req.body.platform
+        ? [req.body.platform]
+        : [];
+
       const result = await this.createProductUseCase.execute({
         data: {
           name: req.body.name,
           description: req.body.description,
-          platforms: req.body.platform,
+          platforms: platforms,
         },
         userId: req.user.userId,
         userName: userName,
