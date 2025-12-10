@@ -17,13 +17,25 @@ export abstract class BaseRepository<TDomain, TModel extends Model> {
   }
 
   async exists(id: string): Promise<boolean> {
-    const count = await this.model.count({ where: { id } });
+    const count: any = await this.model.count({ where: { id } });
     return count > 0;
   }
 
   async save(domain: TDomain): Promise<TDomain> {
     const modelData = this.toModel(domain);
-    const [model] = await this.model.upsert(modelData as any);
+
+    // Remove undefined values to prevent Sequelize from filtering them out
+    const cleanedData = Object.entries(modelData).reduce(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {} as any
+    );
+
+    const [model] = await this.model.upsert(cleanedData);
     return this.toDomain(model);
   }
 

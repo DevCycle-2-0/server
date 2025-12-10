@@ -60,6 +60,8 @@ export class CreateSprintUseCase
     private productRepository: IProductRepository
   ) {}
 
+  // Add this debug logging to CreateSprintUseCase.execute()
+
   async execute(input: CreateSprintInput): Promise<Result<SprintDto>> {
     const product = await this.productRepository.findById(input.data.productId);
     if (!product) {
@@ -69,6 +71,12 @@ export class CreateSprintUseCase
     if (product.workspaceId !== input.workspaceId) {
       return Result.fail<SprintDto>("Product not found");
     }
+
+    console.log("🔍 CreateSprintUseCase - input.data:", input.data);
+    console.log(
+      "🔍 CreateSprintUseCase - input.data.capacity:",
+      input.data.capacity
+    );
 
     const sprint = Sprint.create({
       name: input.data.name,
@@ -80,6 +88,13 @@ export class CreateSprintUseCase
       capacity: input.data.capacity,
       workspaceId: input.workspaceId,
     });
+
+    console.log("🔍 CreateSprintUseCase - sprint created");
+    console.log("🔍 CreateSprintUseCase - sprint.capacity:", sprint.capacity);
+    console.log(
+      "🔍 CreateSprintUseCase - sprint props:",
+      (sprint as any).props
+    );
 
     const savedSprint = await this.sprintRepository.save(sprint);
     return Result.ok<SprintDto>(mapSprintToDto(savedSprint));

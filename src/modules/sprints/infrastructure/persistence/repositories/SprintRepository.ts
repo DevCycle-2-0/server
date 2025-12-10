@@ -54,7 +54,7 @@ export class SprintRepository
   }
 
   protected toModel(domain: Sprint): Partial<SprintModel> {
-    return {
+    const modelData = {
       id: domain.id,
       name: domain.name,
       goal: domain.goal,
@@ -65,11 +65,23 @@ export class SprintRepository
       endDate: domain.endDate,
       taskIds: domain.taskIds,
       bugIds: domain.bugIds,
-      capacity: domain.capacity, // ⚠️ FIX: This was missing!
+      capacity: domain.capacity, // Make sure this is here!
       velocity: domain.velocity,
       retrospective: domain.retrospective as any,
       workspaceId: domain.workspaceId,
     };
+
+    // Debug logging
+    console.log(
+      "🔍 SprintRepository.toModel - capacity value:",
+      domain.capacity
+    );
+    console.log(
+      "🔍 SprintRepository.toModel - full modelData:",
+      JSON.stringify(modelData, null, 2)
+    );
+
+    return modelData;
   }
 
   async findAll(
