@@ -2,8 +2,10 @@ import { UseCase } from "@shared/application/UseCase";
 import { Result } from "@shared/application/Result";
 import { IUserRepository } from "@modules/auth/domain/repositories/IUserRepository";
 import { IWorkspaceRepository } from "@modules/auth/domain/repositories/IWorkspaceRepository";
+import { ISubscriptionRepository } from "@modules/billing/domain/repositories/ISubscriptionRepository";
 import { User } from "@modules/auth/domain/entities/User";
 import { Workspace } from "@modules/auth/domain/entities/Workspace";
+import { Subscription } from "@modules/billing/domain/entities/Subscription";
 import { Email } from "@modules/auth/domain/value-objects/Email";
 import { Password } from "@modules/auth/domain/value-objects/Password";
 import { PasswordHasher } from "@modules/auth/infrastructure/security/PasswordHasher";
@@ -18,7 +20,8 @@ export class SignupUseCase
 {
   constructor(
     private userRepository: IUserRepository,
-    private workspaceRepository: IWorkspaceRepository
+    private workspaceRepository: IWorkspaceRepository,
+    private subscriptionRepository: ISubscriptionRepository
   ) {}
 
   async execute(request: SignupRequest): Promise<Result<AuthResponseDto>> {
@@ -60,7 +63,7 @@ export class SignupUseCase
       const workspace = Workspace.create(
         {
           name: request.workspaceName || `${request.name}'s Workspace`,
-          ownerId: userId, // Use the generated userId
+          ownerId: userId,
         },
         workspaceId
       );
@@ -75,11 +78,22 @@ export class SignupUseCase
           name: request.name,
           workspaceId: savedWorkspace.id,
         },
-        userId // Use the same userId
+        userId
       );
 
       // Save user
       const savedUser = await this.userRepository.save(user);
+
+      // Create free subscription for the user
+      const subscription = Subscription.create({
+        userId: savedUser.id,
+        workspaceId: savedWorkspace.id,
+        planId: "free",
+        interval: "monthly",
+        trialDays: 0, // No trial for free plan
+      });
+
+      await this.subscriptionRepository.save(subscription);
 
       // Generate verification token (for email verification)
       const verificationToken = TokenService.generateVerificationToken(

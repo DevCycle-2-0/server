@@ -11,6 +11,7 @@ import { RequestPasswordResetUseCase } from "@modules/auth/application/use-cases
 import { ResetPasswordUseCase } from "@modules/auth/application/use-cases/ResetPasswordUseCase";
 import { UserRepository } from "@modules/auth/infrastructure/persistence/repositories/UserRepository";
 import { WorkspaceRepository } from "@modules/auth/infrastructure/persistence/repositories/WorkspaceRepository";
+import { SubscriptionRepository } from "@modules/billing/infrastructure/persistence/repositories/SubscriptionRepository";
 
 export class AuthController {
   private loginUseCase: LoginUseCase;
@@ -25,9 +26,14 @@ export class AuthController {
   constructor() {
     const userRepository = new UserRepository();
     const workspaceRepository = new WorkspaceRepository();
+    const subscriptionRepository = new SubscriptionRepository();
 
     this.loginUseCase = new LoginUseCase(userRepository);
-    this.signupUseCase = new SignupUseCase(userRepository, workspaceRepository);
+    this.signupUseCase = new SignupUseCase(
+      userRepository,
+      workspaceRepository,
+      subscriptionRepository
+    );
     this.getCurrentUserUseCase = new GetCurrentUserUseCase(userRepository);
     this.updateProfileUseCase = new UpdateProfileUseCase(userRepository);
     this.changePasswordUseCase = new ChangePasswordUseCase(userRepository);
@@ -92,8 +98,12 @@ export class AuthController {
 
   getUserRoles = async (req: AuthRequest, res: Response): Promise<Response> => {
     try {
+      if (!req.user) {
+        return ApiResponse.unauthorized(res);
+      }
+
       // TODO: Implement proper role retrieval from database
-      // For now, return owner role
+      // For now, return owner role for the workspace owner
       return ApiResponse.success(res, ["owner"]);
     } catch (error) {
       console.error("Get user roles error:", error);

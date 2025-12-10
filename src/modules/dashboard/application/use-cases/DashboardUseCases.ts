@@ -68,7 +68,7 @@ export class GetDashboardStatsUseCase
 
     // Get upcoming releases
     const { releases } = await this.releaseRepository.findAll(
-      { workspaceId: input.workspaceId, status: "scheduled" },
+      { workspaceId: input.workspaceId, status: "staged" }, // ← Change "scheduled" to "staged"
       { sortBy: "releaseDate", sortOrder: "asc" },
       1,
       1000

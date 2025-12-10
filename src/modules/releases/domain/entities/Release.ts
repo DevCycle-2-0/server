@@ -4,6 +4,7 @@ import { Platform } from "@modules/products/domain/entities/Product";
 
 export type ReleaseStatus =
   | "planning"
+  | "scheduled" // ← Add this
   | "in_development"
   | "testing"
   | "staged"

@@ -49,6 +49,7 @@ export class ReleaseModel extends Model {
   @Column(
     DataType.ENUM(
       "planning",
+      "scheduled", // ← Add this
       "in_development",
       "testing",
       "staged",
