@@ -23,11 +23,11 @@ export interface FeatureDto {
   votedBy: string[];
   estimatedHours?: number;
   actualHours?: number;
-  dueDate?: string;
-  completedAt?: string;
+  dueDate?: string; // ISO 8601 string
+  completedAt?: string; // ISO 8601 string
   tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string; // ISO 8601 string
+  updatedAt: string; // ISO 8601 string
 }
 
 export interface CreateFeatureRequest {
@@ -37,7 +37,7 @@ export interface CreateFeatureRequest {
   productId: string;
   platform: Platform;
   tags?: string[];
-  dueDate?: string;
+  dueDate?: string; // ISO 8601 string
 }
 
 export interface UpdateFeatureRequest {
@@ -50,18 +50,6 @@ export interface UpdateFeatureRequest {
 
 export interface UpdateFeatureStatusRequest {
   status: FeatureStatus;
-}
-
-export interface AssignSprintRequest {
-  sprintId: string;
-}
-
-export interface ApproveFeatureRequest {
-  comment?: string;
-}
-
-export interface RejectFeatureRequest {
-  reason: string;
 }
 
 export interface GetFeaturesQuery {
@@ -81,4 +69,16 @@ export interface GetFeaturesQuery {
 export interface VoteResponse {
   votes: number;
   votedBy: string[];
+}
+
+export interface AssignSprintRequest {
+  sprintId: string;
+}
+
+export interface ApproveFeatureRequest {
+  comment?: string;
+}
+
+export interface RejectFeatureRequest {
+  reason: string;
 }

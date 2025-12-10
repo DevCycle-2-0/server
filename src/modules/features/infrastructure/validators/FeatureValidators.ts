@@ -1,3 +1,4 @@
+// src/modules/features/infrastructure/validators/FeatureValidators.ts
 import { body, query } from "express-validator";
 
 const validPlatforms = ["web", "android", "ios", "api", "desktop"];
@@ -28,9 +29,14 @@ export const createFeatureValidator = [
     .isIn(validPriorities)
     .withMessage(`Priority must be one of: ${validPriorities.join(", ")}`),
   body("productId").isUUID().withMessage("Product ID must be a valid UUID"),
+
+  // FIXED: Accept platform as a string (singular form)
   body("platform")
+    .isString()
+    .withMessage("Platform must be a string")
     .isIn(validPlatforms)
     .withMessage(`Platform must be one of: ${validPlatforms.join(", ")}`),
+
   body("tags").optional().isArray().withMessage("Tags must be an array"),
   body("dueDate")
     .optional()

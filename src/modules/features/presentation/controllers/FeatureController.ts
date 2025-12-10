@@ -13,6 +13,7 @@ import {
 } from "@modules/features/application/use-cases/GetFeatureByIdUseCase";
 import { FeatureRepository } from "@modules/features/infrastructure/persistence/repositories/FeatureRepository";
 import { ProductRepository } from "@modules/products/infrastructure/persistence/repositories/ProductRepository";
+import { Console } from "console";
 
 export class FeatureController {
   private createFeatureUseCase: CreateFeatureUseCase;
@@ -118,8 +119,23 @@ export class FeatureController {
       // Get user name from authenticated user (placeholder)
       const userName = "User";
 
+      // the platform
+      const productRepository = new ProductRepository();
+      const product = await productRepository.findById(req.body.productId);
+      if (!product) {
+        return ApiResponse.badRequest(res, "Product not found");
+      }
+
       const result = await this.createFeatureUseCase.execute({
-        data: req.body,
+        data: {
+          title: req.body.title,
+          description: req.body.description,
+          priority: req.body.priority,
+          productId: req.body.productId,
+          platform: product.platforms[0],
+          tags: req.body.tags || [],
+          dueDate: req.body.dueDate,
+        },
         userId: req.user.userId,
         userName: userName,
         workspaceId: req.user.workspaceId,

@@ -1,18 +1,17 @@
-// src/modules/features/infrastructure/persistence/repositories/FeatureRepository.ts
 import { BaseRepository } from "@shared/infrastructure/BaseRepository";
 import {
   IFeatureRepository,
   FeatureFilters,
   FeatureSortOptions,
 } from "@modules/features/domain/repositories/IFeatureRepository";
+import { FeatureModel } from "../models/FeatureModel";
+import { Op } from "sequelize";
 import {
   Feature,
   FeatureStatus,
   Priority,
 } from "@modules/features/domain/entities/Feature";
 import { Platform } from "@modules/products/domain/entities/Product";
-import { FeatureModel } from "../models/FeatureModel";
-import { Op } from "sequelize";
 
 export class FeatureRepository
   extends BaseRepository<Feature, FeatureModel>

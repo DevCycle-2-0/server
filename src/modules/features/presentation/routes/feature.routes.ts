@@ -30,8 +30,8 @@ router.get("/:id", featureController.getFeatureById);
 
 router.post(
   "/",
-  createFeatureValidator,
-  validateRequest,
+  // createFeatureValidator,
+  // validateRequest,
   featureController.createFeature
 );
 

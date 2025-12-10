@@ -51,6 +51,7 @@ export class Feature extends AggregateRoot<FeatureProps> {
     return uuidv4();
   }
 
+  // Getters
   get title(): string {
     return this.props.title;
   }
@@ -143,6 +144,7 @@ export class Feature extends AggregateRoot<FeatureProps> {
     return this.props.updatedAt;
   }
 
+  // Business Methods
   public update(
     title?: string,
     description?: string,
@@ -225,6 +227,7 @@ export class Feature extends AggregateRoot<FeatureProps> {
     this.props.updatedAt = new Date();
   }
 
+  // Factory Method
   public static create(
     props: {
       title: string;
