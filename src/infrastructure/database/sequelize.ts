@@ -1,3 +1,5 @@
+// src/infrastructure/database/sequelize.ts - Updated with Settings Model
+
 import { Sequelize } from "sequelize-typescript";
 import { config } from "@config/env";
 import { UserModel } from "@modules/auth/infrastructure/persistence/models/UserModel";
@@ -11,6 +13,7 @@ import { BugModel } from "@modules/bugs/infrastructure/persistence/models/BugMod
 import { SprintModel } from "@modules/sprints/infrastructure/persistence/models/SprintModel";
 import { ReleaseModel } from "@modules/releases/infrastructure/persistence/models/ReleaseModel";
 import { TeamMemberModel } from "@modules/team/infrastructure/persistence/models/TeamMemberModel";
+import { UserSettingsModel } from "@modules/settings/infrastructure/persistence/models/UserSettingsModel";
 
 export const sequelize = new Sequelize({
   dialect: "postgres",
@@ -32,6 +35,7 @@ export const sequelize = new Sequelize({
     SprintModel,
     ReleaseModel,
     TeamMemberModel,
+    UserSettingsModel,
   ],
   pool: {
     max: 10,
