@@ -1,3 +1,4 @@
+// src/modules/products/presentation/controllers/ProductController.ts
 import { Response } from "express";
 import { AuthRequest } from "@modules/auth/presentation/middlewares/authenticate";
 import { ApiResponse } from "@infrastructure/http/responses/ApiResponse";
@@ -14,9 +15,11 @@ export class ProductController {
   private getProductByIdUseCase: GetProductByIdUseCase;
   private updateProductUseCase: UpdateProductUseCase;
   private deleteProductUseCase: DeleteProductUseCase;
+  private productRepository: ProductRepository;
 
   constructor() {
     const productRepository = new ProductRepository();
+    this.productRepository = productRepository;
 
     this.createProductUseCase = new CreateProductUseCase(productRepository);
     this.getProductsUseCase = new GetProductsUseCase(productRepository);
@@ -77,6 +80,7 @@ export class ProductController {
         return ApiResponse.unauthorized(res);
       }
 
+      // Get the product
       const result = await this.getProductByIdUseCase.execute(req.params.id);
 
       if (result.isFailure) {
@@ -85,12 +89,19 @@ export class ProductController {
 
       const product = result.getValue();
 
-      // Validate workspace access
-      if (product.id) {
-        // Additional validation would be done here in production
+      // SECURITY FIX: Validate that the product belongs to the user's workspace
+      const productEntity = await this.productRepository.findById(
+        req.params.id
+      );
+
+      if (
+        !productEntity ||
+        productEntity.workspaceId !== req.user.workspaceId
+      ) {
+        return ApiResponse.notFound(res, "Product not found");
       }
 
-      return ApiResponse.success(res, result.getValue());
+      return ApiResponse.success(res, product);
     } catch (error) {
       console.error("Get product by id error:", error);
       return ApiResponse.internalError(res);
@@ -102,6 +113,7 @@ export class ProductController {
     res: Response
   ): Promise<Response> => {
     try {
+      console.log(req.body);
       if (!req.user) {
         return ApiResponse.unauthorized(res);
       }
@@ -188,6 +200,18 @@ export class ProductController {
         return ApiResponse.unauthorized(res);
       }
 
+      // SECURITY FIX: Validate workspace access before returning stats
+      const productEntity = await this.productRepository.findById(
+        req.params.id
+      );
+
+      if (
+        !productEntity ||
+        productEntity.workspaceId !== req.user.workspaceId
+      ) {
+        return ApiResponse.notFound(res, "Product not found");
+      }
+
       // TODO: Implement stats calculation
       // This would aggregate data from features, bugs, sprints, etc.
       const stats = {
@@ -217,6 +241,18 @@ export class ProductController {
         return ApiResponse.unauthorized(res);
       }
 
+      // SECURITY FIX: Validate workspace access
+      const productEntity = await this.productRepository.findById(
+        req.params.id
+      );
+
+      if (
+        !productEntity ||
+        productEntity.workspaceId !== req.user.workspaceId
+      ) {
+        return ApiResponse.notFound(res, "Product not found");
+      }
+
       // TODO: Implement team member retrieval
       // This would fetch from a product_team_members table
       return ApiResponse.success(res, []);
@@ -235,6 +271,18 @@ export class ProductController {
         return ApiResponse.unauthorized(res);
       }
 
+      // SECURITY FIX: Validate workspace access
+      const productEntity = await this.productRepository.findById(
+        req.params.id
+      );
+
+      if (
+        !productEntity ||
+        productEntity.workspaceId !== req.user.workspaceId
+      ) {
+        return ApiResponse.notFound(res, "Product not found");
+      }
+
       // TODO: Implement team member addition
       return ApiResponse.created(res, { message: "Team member added" });
     } catch (error) {
@@ -250,6 +298,18 @@ export class ProductController {
     try {
       if (!req.user) {
         return ApiResponse.unauthorized(res);
+      }
+
+      // SECURITY FIX: Validate workspace access
+      const productEntity = await this.productRepository.findById(
+        req.params.id
+      );
+
+      if (
+        !productEntity ||
+        productEntity.workspaceId !== req.user.workspaceId
+      ) {
+        return ApiResponse.notFound(res, "Product not found");
       }
 
       // TODO: Implement team member removal
