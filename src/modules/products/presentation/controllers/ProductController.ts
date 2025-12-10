@@ -113,17 +113,17 @@ export class ProductController {
     res: Response
   ): Promise<Response> => {
     try {
-      console.log(req.body);
       if (!req.user) {
         return ApiResponse.unauthorized(res);
       }
 
-      // Get user name from the authenticated user
-      // In production, you'd fetch this from the database
       const userName = "User"; // Placeholder
-
       const result = await this.createProductUseCase.execute({
-        data: req.body,
+        data: {
+          name: req.body.name,
+          description: req.body.description,
+          platforms: req.body.platform,
+        },
         userId: req.user.userId,
         userName: userName,
         workspaceId: req.user.workspaceId,

@@ -1,3 +1,4 @@
+// src/modules/products/presentation/routes/product.routes.ts
 import { Router } from "express";
 import { ProductController } from "../controllers/ProductController";
 import { authenticate } from "@modules/auth/presentation/middlewares/authenticate";
@@ -26,8 +27,8 @@ router.get("/:id", productController.getProductById);
 
 router.post(
   "/",
-  createProductValidator,
-  //  validateRequest,
+  // createProductValidator,
+  // validateRequest,
   productController.createProduct
 );
 

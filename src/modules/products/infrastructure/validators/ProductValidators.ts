@@ -2,24 +2,49 @@ import { body, query } from "express-validator";
 
 const validPlatforms = ["web", "android", "ios", "api", "desktop"];
 
+export const validStatuses = ["active", "inactive", "archived"];
+
 export const createProductValidator = [
+  // Name
   body("name")
+    .isString()
     .isLength({ min: 2, max: 100 })
     .withMessage("Name must be between 2 and 100 characters")
     .trim(),
+
+  // Description (optional)
   body("description")
     .optional()
+    .isString()
     .isLength({ max: 1000 })
     .withMessage("Description must be less than 1000 characters")
     .trim(),
-  body("platforms")
-    .isArray({ min: 1 })
-    .withMessage("At least one platform is required")
-    .custom((value) => {
-      if (!Array.isArray(value)) return false;
-      return value.every((p) => validPlatforms.includes(p));
-    })
-    .withMessage(`Platforms must be one of: ${validPlatforms.join(", ")}`),
+
+  // Platform (single string)
+  body("platform")
+    .isString()
+    .withMessage("Platform is required")
+    .isIn(validPlatforms)
+    .withMessage(`Platform must be one of: ${validPlatforms.join(", ")}`),
+
+  // Version (semantic version OR simple string)
+  body("version")
+    .isString()
+    .withMessage("Version is required")
+    .matches(/^\d+\.\d+\.\d+$/)
+    .withMessage("Version must follow semantic format: x.y.z (example: 1.0.0)"),
+
+  // Status
+  body("status")
+    .isString()
+    .isIn(validStatuses)
+    .withMessage(`Status must be one of: ${validStatuses.join(", ")}`),
+
+  // Team Members Array
+  body("teamMembers")
+    .optional()
+    .isArray()
+    .withMessage("Team members must be an array"),
 ];
 
 export const updateProductValidator = [
