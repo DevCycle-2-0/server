@@ -24,18 +24,9 @@ export abstract class BaseRepository<TDomain, TModel extends Model> {
   async save(domain: TDomain): Promise<TDomain> {
     const modelData = this.toModel(domain);
 
-    // Remove undefined values to prevent Sequelize from filtering them out
-    const cleanedData = Object.entries(modelData).reduce(
-      (acc, [key, value]) => {
-        if (value !== undefined) {
-          acc[key] = value;
-        }
-        return acc;
-      },
-      {} as any
-    );
-
-    const [model] = await this.model.upsert(cleanedData);
+    // FIXED: Don't filter out undefined values - let Sequelize handle them
+    // This was causing fields to be missing from the INSERT statement
+    const [model] = await this.model.upsert(modelData as any);
     return this.toDomain(model);
   }
 

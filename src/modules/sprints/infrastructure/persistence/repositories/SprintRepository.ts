@@ -31,8 +31,15 @@ export class SprintRepository
         goal: model.goal,
         productId: model.productId,
         productName: model.productName,
-        startDate: model.startDate,
-        endDate: model.endDate,
+        // FIX: Ensure dates are Date objects
+        startDate:
+          model.startDate instanceof Date
+            ? model.startDate
+            : new Date(model.startDate),
+        endDate:
+          model.endDate instanceof Date
+            ? model.endDate
+            : new Date(model.endDate),
         capacity: Number(model.capacity), // Convert from DECIMAL
         workspaceId: model.workspaceId,
         status: model.status as SprintStatus,
@@ -53,8 +60,10 @@ export class SprintRepository
     return sprint;
   }
 
+  // In SprintRepository.ts - Update the toModel method
+
   protected toModel(domain: Sprint): Partial<SprintModel> {
-    const modelData = {
+    const modelData: any = {
       id: domain.id,
       name: domain.name,
       goal: domain.goal,
@@ -65,21 +74,16 @@ export class SprintRepository
       endDate: domain.endDate,
       taskIds: domain.taskIds,
       bugIds: domain.bugIds,
-      capacity: domain.capacity, // Make sure this is here!
-      velocity: domain.velocity,
-      retrospective: domain.retrospective as any,
       workspaceId: domain.workspaceId,
+      // FIXED: Explicitly include capacity even if undefined
+      // Sequelize will handle undefined as NULL, which will fail if NOT NULL constraint exists
+      // So we provide a default value of 0 if capacity is undefined
+      capacity: domain.capacity ?? 0,
+      // Same for velocity - provide null explicitly
+      velocity: domain.velocity !== undefined ? domain.velocity : null,
+      // Retrospective
+      retrospective: domain.retrospective as any,
     };
-
-    // Debug logging
-    console.log(
-      "🔍 SprintRepository.toModel - capacity value:",
-      domain.capacity
-    );
-    console.log(
-      "🔍 SprintRepository.toModel - full modelData:",
-      JSON.stringify(modelData, null, 2)
-    );
 
     return modelData;
   }

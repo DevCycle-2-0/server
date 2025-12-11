@@ -216,7 +216,7 @@ export class Sprint extends AggregateRoot<SprintProps> {
       productName: string;
       startDate: Date;
       endDate: Date;
-      capacity: number;
+      capacity?: number; // Make optional
       workspaceId: string;
       status?: SprintStatus;
       taskIds?: string[];
@@ -240,7 +240,7 @@ export class Sprint extends AggregateRoot<SprintProps> {
         endDate: props.endDate,
         taskIds: props.taskIds || [],
         bugIds: props.bugIds || [],
-        capacity: props.capacity,
+        capacity: props.capacity ?? 0, // FIX: Default to 0 if not provided
         velocity: props.velocity,
         workspaceId: props.workspaceId,
         createdAt: new Date(),

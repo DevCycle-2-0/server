@@ -24,9 +24,12 @@ export const createSprintValidator = [
       }
       return true;
     }),
+  // FIX: Make capacity optional
   body("capacity")
+    .optional()
     .isFloat({ min: 0 })
-    .withMessage("Capacity must be a positive number"),
+    .withMessage("Capacity must be a positive number")
+    .default(0), // Default to 0 if not provided
 ];
 
 export const updateSprintValidator = [

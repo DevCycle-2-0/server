@@ -18,6 +18,15 @@ import {
 
 // Helper function to map Sprint to SprintDto
 function mapSprintToDto(sprint: Sprint): SprintDto {
+  // Helper function to safely convert to date string
+  const toDateString = (date: Date | string): string => {
+    if (date instanceof Date) {
+      return date.toISOString().split("T")[0];
+    }
+    // If it's already a string, ensure it's in the correct format
+    return new Date(date).toISOString().split("T")[0];
+  };
+
   return {
     id: sprint.id,
     name: sprint.name,
@@ -25,8 +34,8 @@ function mapSprintToDto(sprint: Sprint): SprintDto {
     productId: sprint.productId,
     productName: sprint.productName,
     status: sprint.status,
-    startDate: sprint.startDate.toISOString().split("T")[0],
-    endDate: sprint.endDate.toISOString().split("T")[0],
+    startDate: toDateString(sprint.startDate),
+    endDate: toDateString(sprint.endDate),
     taskIds: sprint.taskIds,
     bugIds: sprint.bugIds,
     capacity: sprint.capacity,
@@ -72,12 +81,6 @@ export class CreateSprintUseCase
       return Result.fail<SprintDto>("Product not found");
     }
 
-    console.log("🔍 CreateSprintUseCase - input.data:", input.data);
-    console.log(
-      "🔍 CreateSprintUseCase - input.data.capacity:",
-      input.data.capacity
-    );
-
     const sprint = Sprint.create({
       name: input.data.name,
       goal: input.data.goal,
@@ -88,13 +91,6 @@ export class CreateSprintUseCase
       capacity: input.data.capacity,
       workspaceId: input.workspaceId,
     });
-
-    console.log("🔍 CreateSprintUseCase - sprint created");
-    console.log("🔍 CreateSprintUseCase - sprint.capacity:", sprint.capacity);
-    console.log(
-      "🔍 CreateSprintUseCase - sprint props:",
-      (sprint as any).props
-    );
 
     const savedSprint = await this.sprintRepository.save(sprint);
     return Result.ok<SprintDto>(mapSprintToDto(savedSprint));

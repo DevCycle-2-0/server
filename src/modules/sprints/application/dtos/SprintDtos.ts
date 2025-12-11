@@ -41,7 +41,7 @@ export interface CreateSprintRequest {
   productId: string;
   startDate: string;
   endDate: string;
-  capacity: number;
+  capacity?: number; // Make optional with default 0
 }
 
 export interface UpdateSprintRequest {

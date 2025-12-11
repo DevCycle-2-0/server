@@ -45,11 +45,11 @@ export class SprintModel extends Model {
   status!: string;
 
   @AllowNull(false)
-  @Column(DataType.DATEONLY)
+  @Column(DataType.DATE)
   startDate!: Date;
 
   @AllowNull(false)
-  @Column(DataType.DATEONLY)
+  @Column(DataType.DATE)
   endDate!: Date;
 
   @Default([])
