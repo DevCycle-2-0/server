@@ -89,8 +89,6 @@ export class TaskController {
 
       const { tasks, pagination } = result.getValue();
 
-      console.log({ tasks, pagination });
-
       return ApiResponse.paginated(
         res,
         tasks,
