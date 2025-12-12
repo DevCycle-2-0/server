@@ -33,7 +33,11 @@ router.get("/", getBugsQueryValidator, validateRequest, bugController.getBugs);
 
 router.get("/:id", bugController.getBugById);
 
-router.post("/", createBugValidator, validateRequest, bugController.createBug);
+router.post(
+  "/",
+  //createBugValidator, validateRequest,
+  bugController.createBug
+);
 
 router.patch(
   "/:id",
