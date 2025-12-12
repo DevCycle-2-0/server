@@ -39,6 +39,19 @@ export class BugController {
     this.getBugStatisticsUseCase = new GetBugStatisticsUseCase(bugRepository);
   }
 
+  /**
+   * Helper function to convert array to string with numbered format
+   */
+  private arrayToString(value: string | string[]): string {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map((item, index) => `${index + 1}. ${item}`).join("\n");
+    }
+    return String(value);
+  }
+
   getBugs = async (req: AuthRequest, res: Response): Promise<Response> => {
     try {
       if (!req.user) {
@@ -109,8 +122,16 @@ export class BugController {
 
       const userName = "User"; // Placeholder
 
+      // Normalize array fields to strings
+      const normalizedData = {
+        ...req.body,
+        stepsToReproduce: this.arrayToString(req.body.stepsToReproduce),
+        expectedBehavior: this.arrayToString(req.body.expectedBehavior),
+        actualBehavior: this.arrayToString(req.body.actualBehavior),
+      };
+
       const result = await this.createBugUseCase.execute({
-        data: req.body,
+        data: normalizedData,
         userId: req.user.userId,
         userName: userName,
         workspaceId: req.user.workspaceId,
@@ -133,9 +154,27 @@ export class BugController {
         return ApiResponse.unauthorized(res);
       }
 
+      // Normalize array fields to strings if present
+      const normalizedData = { ...req.body };
+      if (req.body.stepsToReproduce !== undefined) {
+        normalizedData.stepsToReproduce = this.arrayToString(
+          req.body.stepsToReproduce
+        );
+      }
+      if (req.body.expectedBehavior !== undefined) {
+        normalizedData.expectedBehavior = this.arrayToString(
+          req.body.expectedBehavior
+        );
+      }
+      if (req.body.actualBehavior !== undefined) {
+        normalizedData.actualBehavior = this.arrayToString(
+          req.body.actualBehavior
+        );
+      }
+
       const result = await this.updateBugUseCase.execute({
         bugId: req.params.id,
-        data: req.body,
+        data: normalizedData,
         workspaceId: req.user.workspaceId,
       });
 

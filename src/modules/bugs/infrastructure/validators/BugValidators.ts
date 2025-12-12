@@ -26,17 +26,42 @@ export const createBugValidator = [
     .withMessage("Description must be between 20 and 5000 characters")
     .trim(),
   body("stepsToReproduce")
-    .isLength({ min: 10 })
-    .withMessage("Steps to reproduce must be at least 10 characters")
-    .trim(),
+    .custom((value) => {
+      // Accept both string and array formats
+      if (typeof value === "string") {
+        return value.trim().length >= 10;
+      }
+      if (Array.isArray(value)) {
+        // Will be converted to string in the controller/use case
+        return value.length > 0;
+      }
+      return false;
+    })
+    .withMessage(
+      "Steps to reproduce must be provided (minimum 10 characters or at least 1 step)"
+    ),
   body("expectedBehavior")
-    .notEmpty()
-    .withMessage("Expected behavior is required")
-    .trim(),
+    .custom((value) => {
+      if (typeof value === "string") {
+        return value.trim().length > 0;
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
+    })
+    .withMessage("Expected behavior is required"),
   body("actualBehavior")
-    .notEmpty()
-    .withMessage("Actual behavior is required")
-    .trim(),
+    .custom((value) => {
+      if (typeof value === "string") {
+        return value.trim().length > 0;
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
+    })
+    .withMessage("Actual behavior is required"),
   body("severity")
     .isIn(validSeverities)
     .withMessage(`Severity must be one of: ${validSeverities.join(", ")}`),
@@ -73,11 +98,42 @@ export const updateBugValidator = [
     .trim(),
   body("stepsToReproduce")
     .optional()
-    .isLength({ min: 10 })
-    .withMessage("Steps to reproduce must be at least 10 characters")
-    .trim(),
-  body("expectedBehavior").optional().notEmpty().trim(),
-  body("actualBehavior").optional().notEmpty().trim(),
+    .custom((value) => {
+      if (typeof value === "string") {
+        return value.trim().length >= 10;
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
+    })
+    .withMessage(
+      "Steps to reproduce must be at least 10 characters or at least 1 step"
+    ),
+  body("expectedBehavior")
+    .optional()
+    .custom((value) => {
+      if (!value) return true; // optional
+      if (typeof value === "string") {
+        return value.trim().length > 0;
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
+    }),
+  body("actualBehavior")
+    .optional()
+    .custom((value) => {
+      if (!value) return true; // optional
+      if (typeof value === "string") {
+        return value.trim().length > 0;
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
+    }),
   body("severity")
     .optional()
     .isIn(validSeverities)

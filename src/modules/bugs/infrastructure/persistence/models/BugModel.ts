@@ -60,10 +60,12 @@ export class BugModel extends Model {
   )
   status!: string;
 
+  // FIXED: Changed enum values to match BugSeverity type
   @AllowNull(false)
   @Column(DataType.ENUM("low", "medium", "high", "critical"))
   severity!: string;
 
+  // FIXED: Priority uses the same values as severity
   @AllowNull(false)
   @Column(DataType.ENUM("low", "medium", "high", "critical"))
   priority!: string;

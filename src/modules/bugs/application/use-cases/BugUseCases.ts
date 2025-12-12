@@ -73,6 +73,18 @@ export class CreateBugUseCase
   ) {}
 
   async execute(input: CreateBugInput): Promise<Result<BugDto>> {
+    // Validate productId is not empty
+    if (!input.data.productId || input.data.productId.trim() === "") {
+      return Result.fail<BugDto>("Product ID is required and cannot be empty");
+    }
+
+    // Validate productId is a valid UUID format
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(input.data.productId)) {
+      return Result.fail<BugDto>("Product ID must be a valid UUID");
+    }
+
     const product = await this.productRepository.findById(input.data.productId);
     if (!product) {
       return Result.fail<BugDto>("Product not found");
