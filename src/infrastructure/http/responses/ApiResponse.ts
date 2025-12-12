@@ -45,7 +45,6 @@ export class ApiResponse {
         timestamp: new Date().toISOString(),
       },
     };
-
     return res.status(statusCode).json(response);
   }
 

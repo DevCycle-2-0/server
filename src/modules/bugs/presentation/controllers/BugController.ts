@@ -119,7 +119,7 @@ export class BugController {
       if (!req.user) {
         return ApiResponse.unauthorized(res);
       }
-
+      console.log(req.body);
       const userName = "User"; // Placeholder
 
       // Normalize array fields to strings
