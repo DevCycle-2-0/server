@@ -4,9 +4,11 @@ import {
   JwtPayload,
 } from "@modules/auth/infrastructure/security/JwtService";
 import { ApiResponse } from "@infrastructure/http/responses/ApiResponse";
+import { AppRoleType } from "@modules/auth/domain/value-objects/AppRole";
 
 export interface AuthRequest extends Request {
   user?: JwtPayload;
+  userRole?: AppRoleType;
 }
 
 export const authenticate = (

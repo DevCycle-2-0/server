@@ -22,8 +22,7 @@ router.post("/verify-email", authController.verifyEmail);
 
 // Protected routes
 router.post("/logout", authenticate, authController.logout);
-router.get("/me", authenticate, authController.getCurrentUser);
-router.get("/me/roles", authenticate, authController.getUserRoles);
+router.get("/me", authenticate, authController.getCurrentUser); // Now returns role + permissions
 router.patch(
   "/me",
   authenticate,
