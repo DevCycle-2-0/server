@@ -3,7 +3,6 @@ import { FeatureController } from "../controllers/FeatureController";
 import { authenticate } from "@modules/auth/presentation/middlewares/authenticate";
 import { validateRequest } from "@modules/auth/presentation/middlewares/validateRequest";
 import {
-  createFeatureValidator,
   updateFeatureValidator,
   updateFeatureStatusValidator,
   assignSprintValidator,
@@ -11,6 +10,19 @@ import {
   rejectFeatureValidator,
   getFeaturesQueryValidator,
 } from "@modules/features/infrastructure/validators/FeatureValidators";
+
+import { ApprovalWorkflowController } from "../controllers/ApprovalWorkflowController";
+import {
+  initializeWorkflowValidator,
+  approveGateValidator,
+  rejectGateValidator,
+  requestChangesValidator,
+  addCommentValidator,
+  assignGateValidator,
+} from "@modules/features/infrastructure/validators/ApprovalWorkflowValidators";
+
+// Add these routes after the existing feature routes:
+const approvalController = new ApprovalWorkflowController();
 
 const router = Router();
 const featureController = new FeatureController();
@@ -83,5 +95,55 @@ router.post(
 router.get("/:id/tasks", featureController.getFeatureTasks);
 router.get("/:id/comments", featureController.getFeatureComments);
 router.post("/:id/comments", featureController.addFeatureComment);
+
+// Approval workflow routes
+// Feature tasks and comments
+router.get("/:id/tasks", featureController.getFeatureTasks);
+router.get("/:id/comments", featureController.getFeatureComments);
+router.post("/:id/comments", featureController.addFeatureComment);
+
+//Approval workflow routes
+router.post(
+  "/:featureId/approval-workflow",
+  // Remove validator or make it truly optional
+  approvalController.initializeWorkflow
+);
+
+router.get("/:featureId/approval-workflow", approvalController.getWorkflow);
+
+router.post(
+  "/:featureId/approval-workflow/approve",
+  approveGateValidator,
+  validateRequest,
+  approvalController.approveGate
+);
+
+router.post(
+  "/:featureId/approval-workflow/reject",
+  rejectGateValidator,
+  validateRequest,
+  approvalController.rejectGate
+);
+
+router.post(
+  "/:featureId/approval-workflow/request-changes",
+  requestChangesValidator,
+  validateRequest,
+  approvalController.requestChanges
+);
+
+router.post(
+  "/:featureId/approval-workflow/comments",
+  addCommentValidator,
+  validateRequest,
+  approvalController.addComment
+);
+
+router.post(
+  "/:featureId/approval-workflow/assign",
+  assignGateValidator,
+  validateRequest,
+  approvalController.assignGate
+);
 
 export default router;

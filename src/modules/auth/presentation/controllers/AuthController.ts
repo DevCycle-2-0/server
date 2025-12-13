@@ -1,9 +1,11 @@
+// src/modules/auth/presentation/controllers/AuthController.ts
 import { Response } from "express";
 import { AuthRequest } from "../middlewares/authenticate";
 import { ApiResponse } from "@infrastructure/http/responses/ApiResponse";
 import { LoginUseCase } from "@modules/auth/application/use-cases/LoginUseCase";
 import { SignupUseCase } from "@modules/auth/application/use-cases/SignupUseCase";
 import { GetCurrentUserUseCase } from "@modules/auth/application/use-cases/GetCurrentUserUseCase";
+import { GetUserRoleUseCase } from "@modules/auth/application/use-cases/GetUserRoleUseCase";
 import { UpdateProfileUseCase } from "@modules/auth/application/use-cases/UpdateProfileUseCase";
 import { ChangePasswordUseCase } from "@modules/auth/application/use-cases/ChangePasswordUseCase";
 import { RefreshTokenUseCase } from "@modules/auth/application/use-cases/RefreshTokenUseCase";
@@ -18,6 +20,7 @@ export class AuthController {
   private loginUseCase: LoginUseCase;
   private signupUseCase: SignupUseCase;
   private getCurrentUserUseCase: GetCurrentUserUseCase;
+  private getUserRoleUseCase: GetUserRoleUseCase;
   private updateProfileUseCase: UpdateProfileUseCase;
   private changePasswordUseCase: ChangePasswordUseCase;
   private refreshTokenUseCase: RefreshTokenUseCase;
@@ -40,6 +43,7 @@ export class AuthController {
       userRepository,
       userRoleRepository
     );
+    this.getUserRoleUseCase = new GetUserRoleUseCase(userRoleRepository);
     this.updateProfileUseCase = new UpdateProfileUseCase(userRepository);
     this.changePasswordUseCase = new ChangePasswordUseCase(userRepository);
     this.refreshTokenUseCase = new RefreshTokenUseCase();
@@ -107,9 +111,30 @@ export class AuthController {
         return ApiResponse.unauthorized(res);
       }
 
-      // TODO: Implement proper role retrieval from database
-      // For now, return owner role for the workspace owner
-      return ApiResponse.success(res, ["owner"]);
+      // Get user role from database
+      const result = await this.getUserRoleUseCase.execute(req.user.userId);
+
+      if (result.isFailure) {
+        return ApiResponse.badRequest(res, result.error!);
+      }
+
+      const userRole = result.getValue();
+
+      // If no role found, return empty array
+      if (!userRole) {
+        return ApiResponse.success(res, []);
+      }
+
+      // Format the response to match the expected structure
+      const roleData = {
+        id: userRole.id,
+        userId: userRole.userId,
+        role: userRole.role,
+        workspaceId: req.user.workspaceId,
+        createdAt: userRole.createdAt,
+      };
+
+      return ApiResponse.success(res, [roleData]);
     } catch (error) {
       console.error("Get user roles error:", error);
       return ApiResponse.internalError(res);

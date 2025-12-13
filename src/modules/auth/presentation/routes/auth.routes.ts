@@ -1,3 +1,4 @@
+// src/modules/auth/presentation/routes/auth.routes.ts
 import { Router } from "express";
 import { AuthController } from "../controllers/AuthController";
 import { authenticate } from "../middlewares/authenticate";
@@ -22,7 +23,8 @@ router.post("/verify-email", authController.verifyEmail);
 
 // Protected routes
 router.post("/logout", authenticate, authController.logout);
-router.get("/me", authenticate, authController.getCurrentUser); // Now returns role + permissions
+router.get("/me", authenticate, authController.getCurrentUser); // Returns role + permissions
+router.get("/me/roles", authenticate, authController.getUserRoles); // NEW: Returns detailed role info
 router.patch(
   "/me",
   authenticate,

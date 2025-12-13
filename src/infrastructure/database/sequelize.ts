@@ -17,6 +17,7 @@ import { ActivityModel } from "@modules/dashboard/infrastructure/persistence/mod
 import { SubscriptionModel } from "@modules/billing/infrastructure/persistence/models/SubscriptionModel";
 import { InvoiceModel } from "@modules/billing/infrastructure/persistence/models/InvoiceModel";
 import { PaymentMethodModel } from "@modules/billing/infrastructure/persistence/models/PaymentMethodModel";
+import { ApprovalWorkflowModel } from "@modules/features/infrastructure/persistence/models/ApprovalWorkflowModel";
 
 export const sequelize = new Sequelize({
   dialect: "postgres",
@@ -44,6 +45,7 @@ export const sequelize = new Sequelize({
     SubscriptionModel,
     InvoiceModel,
     PaymentMethodModel,
+    ApprovalWorkflowModel,
   ],
   pool: {
     max: 10,
