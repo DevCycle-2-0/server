@@ -10,6 +10,7 @@ import { RefreshTokenUseCase } from "@modules/auth/application/use-cases/Refresh
 import { RequestPasswordResetUseCase } from "@modules/auth/application/use-cases/RequestPasswordResetUseCase";
 import { ResetPasswordUseCase } from "@modules/auth/application/use-cases/ResetPasswordUseCase";
 import { UserRepository } from "@modules/auth/infrastructure/persistence/repositories/UserRepository";
+import { UserRoleRepository } from "@modules/auth/infrastructure/persistence/repositories/UserRoleRepository";
 import { WorkspaceRepository } from "@modules/auth/infrastructure/persistence/repositories/WorkspaceRepository";
 import { SubscriptionRepository } from "@modules/billing/infrastructure/persistence/repositories/SubscriptionRepository";
 
@@ -25,6 +26,7 @@ export class AuthController {
 
   constructor() {
     const userRepository = new UserRepository();
+    const userRoleRepository = new UserRoleRepository();
     const workspaceRepository = new WorkspaceRepository();
     const subscriptionRepository = new SubscriptionRepository();
 
@@ -34,7 +36,10 @@ export class AuthController {
       workspaceRepository,
       subscriptionRepository
     );
-    this.getCurrentUserUseCase = new GetCurrentUserUseCase(userRepository);
+    this.getCurrentUserUseCase = new GetCurrentUserUseCase(
+      userRepository,
+      userRoleRepository
+    );
     this.updateProfileUseCase = new UpdateProfileUseCase(userRepository);
     this.changePasswordUseCase = new ChangePasswordUseCase(userRepository);
     this.refreshTokenUseCase = new RefreshTokenUseCase();

@@ -20,7 +20,7 @@ export class GetCurrentUserUseCase
       return Result.fail<UserWithRoleDto>("User not found");
     }
 
-    // Get user role (default to 'user' if none exists)
+    // Get user role - if no role exists, default to 'user' role
     const userRole = await this.userRoleRepository.findByUserId(userId);
     const role = userRole ? userRole.role.value : "user";
 

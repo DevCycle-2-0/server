@@ -59,10 +59,26 @@ export class SignupUseCase
       const userId = uuidv4();
       const workspaceId = uuidv4();
 
-      // Create workspace with the user as owner
+      // Generate workspace name and slug
+      const workspaceName =
+        request.workspaceName || `${request.name}'s Workspace`;
+      let slug = this.generateSlug(workspaceName);
+
+      // Check if slug exists and make it unique if necessary
+      let slugExists = await this.workspaceRepository.findBySlug(slug);
+      let counter = 1;
+
+      while (slugExists) {
+        slug = `${this.generateSlug(workspaceName)}-${counter}`;
+        slugExists = await this.workspaceRepository.findBySlug(slug);
+        counter++;
+      }
+
+      // Create workspace with the user as owner and unique slug
       const workspace = Workspace.create(
         {
-          name: request.workspaceName || `${request.name}'s Workspace`,
+          name: workspaceName,
+          slug: slug,
           ownerId: userId,
         },
         workspaceId
@@ -94,6 +110,28 @@ export class SignupUseCase
       });
 
       await this.subscriptionRepository.save(subscription);
+
+      // Automatically assign "admin" role to the workspace owner
+      const { UserRole } = await import(
+        "@modules/auth/domain/entities/UserRole"
+      );
+      const { AppRole } = await import(
+        "@modules/auth/domain/value-objects/AppRole"
+      );
+      const { UserRoleRepository } = await import(
+        "@modules/auth/infrastructure/persistence/repositories/UserRoleRepository"
+      );
+
+      const roleOrError = AppRole.create("admin");
+      if (roleOrError.isSuccess) {
+        const userRole = UserRole.create({
+          userId: savedUser.id,
+          role: roleOrError.getValue(),
+        });
+
+        const userRoleRepository = new UserRoleRepository();
+        await userRoleRepository.save(userRole);
+      }
 
       // Generate verification token (for email verification)
       const verificationToken = TokenService.generateVerificationToken(
@@ -127,5 +165,12 @@ export class SignupUseCase
       console.error("Signup use case error:", error);
       return Result.fail<AuthResponseDto>("An error occurred during signup");
     }
+  }
+
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 }
