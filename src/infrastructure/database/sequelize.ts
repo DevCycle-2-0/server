@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import { config } from "@config/env";
 import { UserModel } from "@modules/auth/infrastructure/persistence/models/UserModel";
+import { UserRoleModel } from "@modules/auth/infrastructure/persistence/models/UserRoleModel";
 import { WorkspaceModel } from "@modules/auth/infrastructure/persistence/models/WorkspaceModel";
 import { ProductModel } from "@modules/products/infrastructure/persistence/models/ProductModel";
 import { FeatureModel } from "@modules/features/infrastructure/persistence/models/FeatureModel";
@@ -27,6 +28,7 @@ export const sequelize = new Sequelize({
   logging: config.database.logging ? console.log : false,
   models: [
     UserModel,
+    UserRoleModel,
     WorkspaceModel,
     ProductModel,
     FeatureModel,
